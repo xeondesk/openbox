@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, mock, test } from "bun:test";
+import { beforeEach, describe, expect, vi, test } from "vitest";
 
 type ChatRecord = { id: string };
 type MessageRecord = {
@@ -9,7 +9,7 @@ type MessageRecord = {
 let chats: ChatRecord[] = [];
 let messagesByChatId: Record<string, MessageRecord[]> = {};
 
-mock.module("@/lib/db/sessions", () => ({
+vi.mock("@/lib/db/sessions", () => ({
   getChatsBySessionId: async () => chats,
   getChatMessages: async (chatId: string) => messagesByChatId[chatId] ?? [],
 }));

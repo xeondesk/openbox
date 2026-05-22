@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, mock, test } from "bun:test";
+import { beforeEach, describe, expect, vi, test } from "vitest";
 
 const NOT_FOUND_ERROR = new Error("not-found");
 
@@ -55,18 +55,18 @@ let userModelVariants: Array<{
   providerOptions: Record<string, unknown>;
 }> = [];
 
-mock.module("next/navigation", () => ({
+vi.mock("next/navigation", () => ({
   notFound: () => {
     throw NOT_FOUND_ERROR;
   },
 }));
 
-mock.module("@/lib/db/sessions-cache", () => ({
+vi.mock("@/lib/db/sessions-cache", () => ({
   getShareByIdCached: async () => shareRecord,
   getSessionByIdCached: async () => sessionRecord,
 }));
 
-mock.module("@/lib/db/client", () => ({
+vi.mock("@/lib/db/client", () => ({
   db: {
     query: {
       users: {
@@ -80,12 +80,12 @@ mock.module("@/lib/db/client", () => ({
   },
 }));
 
-mock.module("@/lib/db/sessions", () => ({
+vi.mock("@/lib/db/sessions", () => ({
   getChatById: async () => chatRecord,
   getChatMessages: async () => messageRows,
 }));
 
-mock.module("@/lib/db/user-preferences", () => ({
+vi.mock("@/lib/db/user-preferences", () => ({
   getUserPreferences: async () => ({
     defaultModelId: "anthropic/claude-opus-4.6",
     defaultSubagentModelId: null,
@@ -96,11 +96,11 @@ mock.module("@/lib/db/user-preferences", () => ({
   }),
 }));
 
-mock.module("@/lib/session/get-server-session", () => ({
+vi.mock("@/lib/session/get-server-session", () => ({
   getServerSession: async () => viewerSession,
 }));
 
-mock.module("./shared-chat-content", () => ({
+vi.mock("./shared-chat-content", () => ({
   SharedChatContent: (_props: unknown) => null,
 }));
 

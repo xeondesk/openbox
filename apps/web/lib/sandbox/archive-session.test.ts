@@ -1,6 +1,6 @@
-import { beforeEach, describe, expect, mock, test } from "bun:test";
+import { beforeEach, describe, expect, vi, test } from "vitest";
 
-mock.module("server-only", () => ({}));
+vi.mock("server-only", () => ({}));
 
 interface TestSessionRecord {
   id: string;
@@ -65,7 +65,7 @@ let sessionRecord: TestSessionRecord | null = null;
 let sandboxQueue: MockSandbox[] = [];
 
 const spies = {
-  getSessionById: mock(async (_sessionId: string) => {
+  getSessionById: vi.fn(async (_sessionId: string) => {
     if (!sessionRecord) {
       return null;
     }
@@ -77,7 +77,7 @@ const spies = {
         : null,
     };
   }),
-  updateSession: mock(
+  updateSession: vi.fn(
     async (_sessionId: string, patch: Record<string, unknown>) => {
       if (!sessionRecord) {
         return null;
@@ -96,7 +96,7 @@ const spies = {
       };
     },
   ),
-  connectSandbox: mock(async () => {
+  connectSandbox: vi.fn(async () => {
     const sandbox = sandboxQueue.shift();
     if (!sandbox) {
       throw new Error("sandbox connection failed");
@@ -104,34 +104,34 @@ const spies = {
 
     return sandbox;
   }),
-  getUserGitHubToken: mock(async () => "repo-token"),
-  getPullRequestStatus: mock(
+  getUserGitHubToken: vi.fn(async () => "repo-token"),
+  getPullRequestStatus: vi.fn(
     async (): Promise<MockPullRequestStatusResult> => ({
       success: false,
       error: "Failed to get PR status",
     }),
   ),
-  findPullRequest: mock(
+  findPullRequest: vi.fn(
     async (): Promise<MockFindPullRequestResult> => ({
       found: false,
     }),
   ),
 };
 
-mock.module("@/lib/db/sessions", () => ({
+vi.mock("@/lib/db/sessions", () => ({
   getSessionById: spies.getSessionById,
   updateSession: spies.updateSession,
 }));
 
-mock.module("@open-agents/sandbox", () => ({
+vi.mock("@open-agents/sandbox", () => ({
   connectSandbox: spies.connectSandbox,
 }));
 
-mock.module("@/lib/github/token", () => ({
+vi.mock("@/lib/github/token", () => ({
   getUserGitHubToken: spies.getUserGitHubToken,
 }));
 
-mock.module("@/lib/github/pulls", () => ({
+vi.mock("@/lib/github/pulls", () => ({
   getPullRequestStatus: spies.getPullRequestStatus,
   findPullRequest: spies.findPullRequest,
 }));

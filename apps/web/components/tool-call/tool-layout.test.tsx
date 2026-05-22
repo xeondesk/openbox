@@ -1,4 +1,4 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test } from "vitest";
 import type { ToolRenderState } from "@open-agents/shared/lib/tool-state";
 import { renderToStaticMarkup } from "react-dom/server";
 import { ToolLayout } from "./tool-layout";

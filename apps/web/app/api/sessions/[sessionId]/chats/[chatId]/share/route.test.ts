@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, mock, test } from "bun:test";
+import { beforeEach, describe, expect, vi, test } from "vitest";
 
 type AuthSession = { user: { id: string } } | null;
 
@@ -16,7 +16,7 @@ const createShareInputs: Array<{ id: string; chatId: string }> = [];
 const deletedShareChatIds: string[] = [];
 
 function registerRouteMocks() {
-  mock.module("@/app/api/sessions/_lib/session-context", () => ({
+  vi.mock("@/app/api/sessions/_lib/session-context", () => ({
     requireAuthenticatedUser: async () =>
       currentSession
         ? {
@@ -75,11 +75,11 @@ function registerRouteMocks() {
     },
   }));
 
-  mock.module("nanoid", () => ({
+  vi.mock("nanoid", () => ({
     nanoid: () => "generated-share-id",
   }));
 
-  mock.module("@/lib/db/sessions", () => ({
+  vi.mock("@/lib/db/sessions", () => ({
     getShareByChatId: async () => shareRecord,
     createShareIfNotExists: async (input: { id: string; chatId: string }) => {
       createShareInputs.push(input);

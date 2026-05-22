@@ -11,11 +11,13 @@ import {
   useRef,
   useState,
 } from "react";
+import * as Sentry from "@sentry/nextjs";
 import { Toaster } from "sonner";
 import { SWRConfig } from "swr";
 import { GitHubReconnectGate } from "@/components/github-reconnect-gate";
 import { authClient } from "@/lib/auth/client";
 import { FetchError } from "@/lib/swr";
+import { setUserContext, clearUserContext } from "@/lib/monitoring/metrics";
 
 const THEME_STORAGE_KEY = "open-agents-theme";
 const DARK_MODE_MEDIA_QUERY = "(prefers-color-scheme: dark)";
@@ -72,6 +74,18 @@ export function Providers({ children }: { children: React.ReactNode }) {
 
     setThemeState(initialTheme);
     applyThemePreference(initialTheme);
+    
+    // Initialize Sentry user context
+    authClient.getSession().then((session) => {
+      if (session?.user) {
+        setUserContext(session.user.id, session.user.email, session.user.name || undefined);
+      } else {
+        clearUserContext();
+      }
+    }).catch(() => {
+      // Session fetch failed, clear context
+      clearUserContext();
+    });
   }, [applyThemePreference]);
 
   useEffect(() => {
@@ -102,6 +116,13 @@ export function Providers({ children }: { children: React.ReactNode }) {
 
   const handleError = useCallback(
     (error: Error) => {
+      // Capture error in Sentry
+      Sentry.captureException(error, {
+        tags: {
+          errorType: "swr_error",
+        },
+      });
+      
       const isSessionAuthError =
         error instanceof FetchError &&
         error.status === 401 &&

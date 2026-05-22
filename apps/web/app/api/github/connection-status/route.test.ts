@@ -1,6 +1,6 @@
-import { beforeEach, describe, expect, mock, test } from "bun:test";
+import { beforeEach, describe, expect, vi, test } from "vitest";
 
-mock.module("server-only", () => ({}));
+vi.mock("server-only", () => ({}));
 
 type AuthSession = {
   user: {
@@ -17,25 +17,25 @@ let syncedInstallationsCount = 0;
 let syncError: Error | null;
 let syncErrorIsAuth = false;
 
-mock.module("@/lib/session/get-server-session", () => ({
+vi.mock("@/lib/session/get-server-session", () => ({
   getServerSession: async () => authSession,
 }));
 
-mock.module("@/lib/github/token", () => ({
+vi.mock("@/lib/github/token", () => ({
   getUserGitHubToken: async () => userToken,
 }));
 
-mock.module("@/lib/github/users", () => ({
+vi.mock("@/lib/github/users", () => ({
   hasGitHubAccount: async () => hasLinkedGitHub,
   getGitHubUsername: async () => githubUsername,
   getGitHubAccountId: async () => null,
 }));
 
-mock.module("@/lib/db/installations", () => ({
+vi.mock("@/lib/db/installations", () => ({
   getInstallationsByUserId: async () => installations,
 }));
 
-mock.module("@/lib/github/sync", () => ({
+vi.mock("@/lib/github/sync", () => ({
   syncUserInstallations: async () => {
     if (syncError) {
       throw syncError;

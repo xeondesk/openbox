@@ -1,4 +1,4 @@
-import { describe, expect, mock, test } from "bun:test";
+import { describe, expect, test, vi } from "vitest";
 import type { SandboxConnectConfig } from "../factory";
 import type { ExecResult } from "../interface";
 import {
@@ -49,8 +49,8 @@ describe("refreshBaseSnapshot", () => {
       timeoutMs: number;
     }> = [];
     const logs: string[] = [];
-    const stop = mock(async () => {});
-    const snapshot = mock(async () => ({ snapshotId: "snap-next" }));
+    const stop = vi.fn(async () => {});
+    const snapshot = vi.fn(async () => ({ snapshotId: "snap-next" }));
 
     const result = await refreshBaseSnapshot(
       {
@@ -132,8 +132,8 @@ describe("refreshBaseSnapshot", () => {
   });
 
   test("stops the sandbox and surfaces command output when setup fails", async () => {
-    const stop = mock(async () => {});
-    const snapshot = mock(async () => ({ snapshotId: "snap-next" }));
+    const stop = vi.fn(async () => {});
+    const snapshot = vi.fn(async () => ({ snapshotId: "snap-next" }));
 
     const refreshPromise = refreshBaseSnapshot(
       {
@@ -167,7 +167,7 @@ describe("refreshBaseSnapshot", () => {
   });
 
   test("stops the sandbox when snapshot support is unavailable", async () => {
-    const stop = mock(async () => {});
+    const stop = vi.fn(async () => {});
 
     const refreshPromise = refreshBaseSnapshot(
       {

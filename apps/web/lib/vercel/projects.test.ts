@@ -1,6 +1,6 @@
-import { afterEach, beforeEach, describe, expect, mock, test } from "bun:test";
+import { afterEach, beforeEach, describe, expect, vi, test } from "vitest";
 
-mock.module("server-only", () => ({}));
+vi.mock("server-only", () => ({}));
 
 const originalFetch = globalThis.fetch;
 
@@ -16,7 +16,7 @@ describe("Vercel project helpers", () => {
   });
 
   test("listMatchingVercelProjects dedupes projects and tolerates partial scope failures", async () => {
-    const fetchMock = mock(async (input: RequestInfo | URL) => {
+    const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
       const url = new URL(input.toString());
 
       if (url.pathname === "/v2/teams") {
@@ -87,7 +87,7 @@ describe("Vercel project helpers", () => {
   });
 
   test("identifies invalid token API responses", async () => {
-    const fetchMock = mock(async () =>
+    const fetchMock = vi.fn(async () =>
       Response.json(
         {
           error: {
@@ -183,7 +183,7 @@ describe("Vercel project helpers", () => {
   });
 
   test("findLatestPreviewDeploymentUrlForBranch prefers the newest non-production branch deployment", async () => {
-    const fetchMock = mock(async (input: RequestInfo | URL) => {
+    const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
       const url = new URL(input.toString());
 
       if (url.pathname === "/v6/deployments") {

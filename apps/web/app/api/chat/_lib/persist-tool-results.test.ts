@@ -1,18 +1,18 @@
-import { beforeEach, describe, expect, mock, test } from "bun:test";
+import { beforeEach, describe, expect, vi, test } from "vitest";
 import type { WebAgentUIMessage } from "@/app/types";
 
 let upsertResult: { status: "inserted" | "updated" | "conflict" } = {
   status: "inserted",
 };
 
-const upsertSpy = mock(() => Promise.resolve(upsertResult));
+const upsertSpy = vi.fn(() => Promise.resolve(upsertResult));
 
-mock.module("ai", () => ({
+vi.mock("ai", () => ({
   isToolUIPart: (part: { type: string }) =>
     part.type.startsWith("tool-") || part.type === "dynamic-tool",
 }));
 
-mock.module("@/lib/db/sessions", () => ({
+vi.mock("@/lib/db/sessions", () => ({
   upsertChatMessageScoped: upsertSpy,
 }));
 

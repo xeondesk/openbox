@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, mock, test } from "bun:test";
+import { beforeEach, describe, expect, vi, test } from "vitest";
 
 let authSession: { user: { id: string } } | null;
 let cookieValues: Record<string, string>;
@@ -7,7 +7,7 @@ let githubUsername: string | null;
 let syncedInstallationsCount = 0;
 let syncInstallationsError: Error | null;
 
-mock.module("next/headers", () => ({
+vi.mock("next/headers", () => ({
   cookies: async () => ({
     get: (name: string) => {
       const value = cookieValues[name];
@@ -16,20 +16,20 @@ mock.module("next/headers", () => ({
   }),
 }));
 
-mock.module("@/lib/session/get-server-session", () => ({
+vi.mock("@/lib/session/get-server-session", () => ({
   getServerSession: async () => authSession,
 }));
 
-mock.module("@/lib/github/token", () => ({
+vi.mock("@/lib/github/token", () => ({
   getUserGitHubToken: async () => githubToken,
 }));
 
-mock.module("@/lib/github/users", () => ({
+vi.mock("@/lib/github/users", () => ({
   getGitHubUsername: async () => githubUsername,
   getGitHubAccountId: async () => null,
 }));
 
-mock.module("@/lib/github/sync", () => ({
+vi.mock("@/lib/github/sync", () => ({
   syncUserInstallations: async () => {
     if (syncInstallationsError) {
       throw syncInstallationsError;

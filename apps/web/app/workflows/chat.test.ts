@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, mock, test } from "bun:test";
+import { beforeEach, describe, expect, vi, test } from "vitest";
 import type { UIMessageChunk } from "ai";
 
 // ── Spy state ──────────────────────────────────────────────────────
@@ -44,18 +44,18 @@ function createResolvedChatSandboxRuntime(
 }
 
 const spies = {
-  persistUserMessage: mock(() => Promise.resolve()),
-  persistAssistantMessageWithToolResults: mock(() => Promise.resolve()),
-  persistAssistantMessage: mock((_chatId?: unknown, _message?: unknown) =>
+  persistUserMessage: vi.fn(() => Promise.resolve()),
+  persistAssistantMessageWithToolResults: vi.fn(() => Promise.resolve()),
+  persistAssistantMessage: vi.fn((_chatId?: unknown, _message?: unknown) =>
     Promise.resolve(),
   ),
-  persistSandboxState: mock((_sessionId?: unknown, _sandboxState?: unknown) =>
+  persistSandboxState: vi.fn((_sessionId?: unknown, _sandboxState?: unknown) =>
     Promise.resolve(),
   ),
-  resolveChatSandboxRuntime: mock((_params: { assistantId?: string }) => {
+  resolveChatSandboxRuntime: vi.fn((_params: { assistantId?: string }) => {
     return Promise.resolve(createResolvedChatSandboxRuntime());
   }),
-  claimActiveStream: mock(
+  claimActiveStream: vi.fn(
     async (
       _chatId?: unknown,
       _workflowRunId?: unknown,
@@ -73,13 +73,13 @@ const spies = {
       return "claimed";
     },
   ),
-  closeStream: mock((writable: WritableStream<UIMessageChunk>) =>
+  closeStream: vi.fn((writable: WritableStream<UIMessageChunk>) =>
     writable.close(),
   ),
-  clearActiveStream: mock((_chatId?: unknown, _workflowRunId?: unknown) =>
+  clearActiveStream: vi.fn((_chatId?: unknown, _workflowRunId?: unknown) =>
     Promise.resolve(),
   ),
-  sendFinish: mock(async (writable: WritableStream<UIMessageChunk>) => {
+  sendFinish: vi.fn(async (writable: WritableStream<UIMessageChunk>) => {
     const writer = writable.getWriter();
     try {
       await writer.write({ type: "finish", finishReason: "stop" });
@@ -87,16 +87,16 @@ const spies = {
       writer.releaseLock();
     }
   }),
-  recordWorkflowUsage: mock(() => Promise.resolve()),
-  refreshDiffCache: mock((_sessionId?: unknown, _sandboxState?: unknown) =>
+  recordWorkflowUsage: vi.fn(() => Promise.resolve()),
+  refreshDiffCache: vi.fn((_sessionId?: unknown, _sandboxState?: unknown) =>
     Promise.resolve(),
   ),
-  refreshLifecycleActivity: mock(() => Promise.resolve()),
-  hasAutoCommitChangesStep: mock(() => Promise.resolve(true)),
-  runAutoCommitStep: mock(() =>
+  refreshLifecycleActivity: vi.fn(() => Promise.resolve()),
+  hasAutoCommitChangesStep: vi.fn(() => Promise.resolve(true)),
+  runAutoCommitStep: vi.fn(() =>
     Promise.resolve({ committed: false, pushed: false }),
   ),
-  runAutoCreatePrStep: mock(() =>
+  runAutoCreatePrStep: vi.fn(() =>
     Promise.resolve({
       created: true,
       syncedExisting: false,
@@ -195,7 +195,7 @@ function buildAgentSteps() {
 
 // ── Module mocks ───────────────────────────────────────────────────
 
-mock.module("workflow", () => ({
+vi.mock("workflow", () => ({
   getWorkflowMetadata: () => ({ workflowRunId: "wrun_test-123" }),
   getWritable: () => {
     const writable = new WritableStream<UIMessageChunk>({
@@ -207,7 +207,7 @@ mock.module("workflow", () => ({
   },
 }));
 
-mock.module("workflow/api", () => ({
+vi.mock("workflow/api", () => ({
   getRun: () => ({
     get status() {
       return Promise.resolve(runStatus);
@@ -215,9 +215,9 @@ mock.module("workflow/api", () => ({
   }),
 }));
 
-mock.module("./chat-post-finish", () => spies);
+vi.mock("./chat-post-finish", () => spies);
 
-mock.module("@/app/config", () => ({
+vi.mock("@/app/config", () => ({
   webAgent: {
     tools: {},
     stream: async ({ messages }: { messages: unknown }) => {
@@ -291,7 +291,7 @@ mock.module("@/app/config", () => ({
   },
 }));
 
-mock.module("ai", () => ({
+vi.mock("ai", () => ({
   convertToModelMessages: async (
     msgs: Array<Record<string, unknown>>,
     options?: { convertDataPart?: (part: Record<string, unknown>) => unknown },
@@ -336,18 +336,18 @@ mock.module("ai", () => ({
     }),
 }));
 
-mock.module("@open-agents/agent", () => ({}));
+vi.mock("@open-agents/agent", () => ({}));
 
-mock.module("@/lib/db/sessions", () => ({
+vi.mock("@/lib/db/sessions", () => ({
   getChatById: async () => testChatRecord,
   getSessionById: async () => testSessionRecord,
 }));
 
-mock.module("@/lib/db/user-preferences", () => ({
+vi.mock("@/lib/db/user-preferences", () => ({
   getUserPreferences: async () => testPreferences,
 }));
 
-mock.module("./chat-sandbox-runtime", () => ({
+vi.mock("./chat-sandbox-runtime", () => ({
   resolveChatSandboxRuntime: spies.resolveChatSandboxRuntime,
 }));
 
@@ -813,8 +813,8 @@ describe("runAgentWorkflow", () => {
       expect(warnings[0]).toHaveLength(1);
       const warning = warnings[0]?.[0];
       expect(typeof warning).toBe("string");
-      expect(warning).toStartWith(
-        "[workflow] Agent step finished with reason 'other':\n",
+      expect(warning).toMatch(
+        /^\[workflow\] Agent step finished with reason 'other':\n/,
       );
 
       const payload = JSON.parse(
@@ -1525,7 +1525,7 @@ describe("runAgentWorkflow", () => {
 
   test("still clears stream and sends finish even on step error", async () => {
     // Mock the agent to throw
-    mock.module("@/app/config", () => ({
+    vi.mock("@/app/config", () => ({
       webAgent: {
         tools: {},
         stream: async () => {
@@ -1534,7 +1534,7 @@ describe("runAgentWorkflow", () => {
       },
     }));
 
-    // Re-import to pick up new mock
+    // Re-import to pick up new vi
     const { runAgentWorkflow: reloadedRun } = await import("./chat");
 
     try {

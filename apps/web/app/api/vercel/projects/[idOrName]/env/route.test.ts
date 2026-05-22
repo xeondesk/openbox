@@ -1,7 +1,7 @@
-import { afterEach, beforeEach, describe, expect, mock, test } from "bun:test";
+import { afterEach, beforeEach, describe, expect, vi, test } from "vitest";
 
 const originalFetch = globalThis.fetch;
-const fetchMock = mock(async () => new Response("unexpected upstream call"));
+const fetchMock = vi.fn(async () => new Response("unexpected upstream call"));
 const routeModulePromise = import("./route");
 
 describe("/api/vercel/projects/[idOrName]/env", () => {

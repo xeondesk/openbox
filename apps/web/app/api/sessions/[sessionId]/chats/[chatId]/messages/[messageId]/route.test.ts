@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, mock, test } from "bun:test";
+import { beforeEach, describe, expect, vi, test } from "vitest";
 
 type AuthResult =
   | {
@@ -57,14 +57,14 @@ let deleteResult: DeleteMessageResult = {
 
 const deleteCalls: Array<{ chatId: string; messageId: string }> = [];
 
-mock.module("@/app/api/sessions/_lib/session-context", () => ({
+vi.mock("@/app/api/sessions/_lib/session-context", () => ({
   requireAuthenticatedUser: async () => authResult,
   requireOwnedSessionChat: async () => ownedSessionChatResult,
 }));
 
 let mockWorkflowStatus = "running";
 
-mock.module("@/lib/db/sessions", () => ({
+vi.mock("@/lib/db/sessions", () => ({
   deleteChatMessageAndFollowing: async (chatId: string, messageId: string) => {
     deleteCalls.push({ chatId, messageId });
     return deleteResult;
@@ -72,7 +72,7 @@ mock.module("@/lib/db/sessions", () => ({
   updateChatActiveStreamId: async () => {},
 }));
 
-mock.module("workflow/api", () => ({
+vi.mock("workflow/api", () => ({
   getRun: () => ({
     get status() {
       return Promise.resolve(mockWorkflowStatus);
@@ -80,7 +80,7 @@ mock.module("workflow/api", () => ({
   }),
 }));
 
-mock.module("@/lib/session/get-server-session", () => ({
+vi.mock("@/lib/session/get-server-session", () => ({
   getServerSession: async () => currentAuthSession,
 }));
 

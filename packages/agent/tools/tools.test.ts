@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, mock, test } from "bun:test";
+import { afterEach, describe, expect, vi, test } from "vitest";
 import { mkdir, mkdtemp, readFile, stat, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
@@ -6,7 +6,7 @@ import type { ToolNeedsApprovalFunction } from "./utils";
 
 const sandboxRegistry = new Map<string, Record<string, unknown>>();
 
-mock.module("ai", () => {
+vi.mock("ai", () => {
   class MockToolLoopAgent {
     constructor(_config: unknown) {}
 
@@ -48,7 +48,7 @@ mock.module("ai", () => {
   };
 });
 
-mock.module("@open-agents/sandbox", () => ({
+vi.mock("@open-agents/sandbox", () => ({
   connectSandbox: async (state: { sandboxId?: string }) => {
     if (!state.sandboxId) {
       throw new Error("Missing sandboxId in test sandbox state.");

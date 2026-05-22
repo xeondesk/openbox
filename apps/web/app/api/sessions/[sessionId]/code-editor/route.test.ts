@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, mock, test } from "bun:test";
+import { beforeEach, describe, expect, vi, test } from "vitest";
 
 const CODE_EDITOR_PID_FILE = "/tmp/open-agents-code-server.pid";
 const CODE_EDITOR_LOCK_DIR = "/tmp/open-agents-code-server.lock";
@@ -55,15 +55,15 @@ function removeProcessFromList(pid: string) {
     .join("\n");
 }
 
-const requireAuthenticatedUserMock = mock(async () => ({
+const requireAuthenticatedUserMock = vi.fn(async () => ({
   ok: true as const,
   userId: "user-1",
 }));
-const requireOwnedSessionWithSandboxGuardMock = mock(async () => ({
+const requireOwnedSessionWithSandboxGuardMock = vi.fn(async () => ({
   ok: true as const,
   sessionRecord: currentSessionRecord,
 }));
-const execMock = mock(async (command: string) => {
+const execMock = vi.fn(async (command: string) => {
   if (command === "ps -eo pid=,args=") {
     return successResult(processListOutput);
   }
@@ -113,14 +113,14 @@ const execMock = mock(async (command: string) => {
 
   throw new Error(`Unexpected exec command: ${command}`);
 });
-const readFileMock = mock(async (filePath: string) => {
+const readFileMock = vi.fn(async (filePath: string) => {
   const content = fileContents.get(filePath);
   if (content === undefined) {
     throw new Error(`Missing file: ${filePath}`);
   }
   return content;
 });
-const execDetachedMock = mock(async (command: string, cwd: string) => {
+const execDetachedMock = vi.fn(async (command: string, cwd: string) => {
   lastLaunchCommand = command;
   lastLaunchCwd = cwd;
 
@@ -130,8 +130,8 @@ const execDetachedMock = mock(async (command: string, cwd: string) => {
 
   return { commandId: "cmd-1" };
 });
-const domainMock = mock((port: number) => `https://sb-${port}.vercel.run`);
-const connectSandboxMock = mock(async () => ({
+const domainMock = vi.fn((port: number) => `https://sb-${port}.vercel.run`);
+const connectSandboxMock = vi.fn(async () => ({
   workingDirectory: "/vercel/sandbox",
   exec: execMock,
   readFile: readFileMock,
@@ -139,16 +139,16 @@ const connectSandboxMock = mock(async () => ({
   domain: domainMock,
 }));
 
-mock.module("@/app/api/sessions/_lib/session-context", () => ({
+vi.mock("@/app/api/sessions/_lib/session-context", () => ({
   requireAuthenticatedUser: requireAuthenticatedUserMock,
   requireOwnedSessionWithSandboxGuard: requireOwnedSessionWithSandboxGuardMock,
 }));
 
-mock.module("@open-agents/sandbox", () => ({
+vi.mock("@open-agents/sandbox", () => ({
   connectSandbox: connectSandboxMock,
 }));
 
-mock.module("@/lib/session/get-server-session", () => ({
+vi.mock("@/lib/session/get-server-session", () => ({
   getServerSession: async () => currentAuthSession,
 }));
 

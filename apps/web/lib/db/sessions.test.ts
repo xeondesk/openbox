@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, mock, test } from "bun:test";
+import { beforeEach, describe, expect, vi, test } from "vitest";
 
 type UpsertMode = "inserted" | "updated" | "conflict";
 
@@ -64,7 +64,7 @@ const fakeDb = {
   },
 };
 
-mock.module("./client", () => ({
+vi.mock("./client", () => ({
   db: fakeDb,
 }));
 

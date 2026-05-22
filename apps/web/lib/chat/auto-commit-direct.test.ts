@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, mock, test } from "bun:test";
+import { beforeEach, describe, expect, vi, test } from "vitest";
 
 // ── spy state ──────────────────────────────────────────────────────
 
@@ -41,17 +41,17 @@ let syncPreservingChangesCalls = 0;
 
 // ── module mocks ───────────────────────────────────────────────────
 
-mock.module("server-only", () => ({}));
+vi.mock("server-only", () => ({}));
 
-mock.module("ai", () => ({
+vi.mock("ai", () => ({
   generateText: async () => generateTextResult,
 }));
 
-mock.module("@open-agents/agent", () => ({
-  gateway: () => "mock-model",
+vi.mock("@open-agents/agent", () => ({
+  gateway: () => "vi-model",
 }));
 
-mock.module("@open-agents/sandbox", () => ({
+vi.mock("@open-agents/sandbox", () => ({
   connectSandbox: async () => ({}),
   hasUncommittedChanges: async () => hasChanges,
   stageAll: async () => {
@@ -75,18 +75,18 @@ mock.module("@open-agents/sandbox", () => ({
   ) => operation(),
 }));
 
-mock.module("@/lib/db/sessions", () => ({
+vi.mock("@/lib/db/sessions", () => ({
   getChatsBySessionId: async () => [],
   getSessionById: async () => null,
   updateSession: async () => {},
 }));
 
-mock.module("@/lib/github/access", () => ({
+vi.mock("@/lib/github/access", () => ({
   verifyRepoAccess: async () => verifyResult,
   getRepoAccessErrorMessage: () => "Access denied",
 }));
 
-mock.module("@/lib/github/commit", () => ({
+vi.mock("@/lib/github/commit", () => ({
   createCommit: async () => apiCommitResult,
   buildCoAuthor: async () => coAuthorResult,
   buildCommitMessageWithCoAuthor: (
@@ -98,7 +98,7 @@ mock.module("@/lib/github/commit", () => ({
       : message,
 }));
 
-mock.module("@/lib/github/app", () => ({
+vi.mock("@/lib/github/app", () => ({
   withScopedInstallationOctokit: async ({
     operation,
   }: {

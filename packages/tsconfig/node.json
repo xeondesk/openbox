@@ -3,6 +3,6 @@
   "extends": "./base.json",
   "compilerOptions": {
     "jsx": "react-jsx",
-    "types": ["bun", "node"]
+    "types": ["node"]
   }
 }

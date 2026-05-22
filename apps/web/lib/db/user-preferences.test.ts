@@ -1,6 +1,6 @@
-import { describe, expect, mock, test } from "bun:test";
+import { describe, expect, vi, test } from "vitest";
 
-mock.module("./client", () => ({
+vi.mock("./client", () => ({
   db: {},
 }));
 

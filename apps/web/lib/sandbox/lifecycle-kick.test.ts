@@ -1,6 +1,6 @@
-import { afterAll, beforeEach, describe, expect, mock, test } from "bun:test";
+import { afterAll, beforeEach, describe, expect, vi, test } from "vitest";
 
-mock.module("server-only", () => ({}));
+vi.mock("server-only", () => ({}));
 
 type TestSessionRecord = {
   id: string;
@@ -24,23 +24,25 @@ let sessionRecord: TestSessionRecord | null = null;
 const scheduledCallbacks: Array<() => Promise<void>> = [];
 
 const spies = {
-  start: mock(async () => ({ runId: "workflow-run-1" })),
-  claimSessionLifecycleRunId: mock(async (sessionId: string, runId: string) => {
-    if (
-      !sessionRecord ||
-      sessionRecord.id !== sessionId ||
-      sessionRecord.lifecycleRunId !== null
-    ) {
-      return false;
-    }
+  start: vi.fn(async () => ({ runId: "workflow-run-1" })),
+  claimSessionLifecycleRunId: vi.fn(
+    async (sessionId: string, runId: string) => {
+      if (
+        !sessionRecord ||
+        sessionRecord.id !== sessionId ||
+        sessionRecord.lifecycleRunId !== null
+      ) {
+        return false;
+      }
 
-    sessionRecord = {
-      ...sessionRecord,
-      lifecycleRunId: runId,
-    };
-    return true;
-  }),
-  getSessionById: mock(async () =>
+      sessionRecord = {
+        ...sessionRecord,
+        lifecycleRunId: runId,
+      };
+      return true;
+    },
+  ),
+  getSessionById: vi.fn(async () =>
     sessionRecord
       ? {
           ...sessionRecord,
@@ -50,7 +52,7 @@ const spies = {
         }
       : null,
   ),
-  updateSession: mock(
+  updateSession: vi.fn(
     async (_sessionId: string, patch: Record<string, unknown>) => {
       if (!sessionRecord) {
         return null;
@@ -63,33 +65,33 @@ const spies = {
       return sessionRecord;
     },
   ),
-  evaluateSandboxLifecycle: mock(async () => ({ action: "skipped" as const })),
-  getLifecycleDueAtMs: mock(() => Date.now()),
-  canOperateOnSandbox: mock(() => true),
+  evaluateSandboxLifecycle: vi.fn(async () => ({ action: "skipped" as const })),
+  getLifecycleDueAtMs: vi.fn(() => Date.now()),
+  canOperateOnSandbox: vi.fn(() => true),
 };
 
 const sandboxLifecycleWorkflow = Symbol("sandboxLifecycleWorkflow");
 
-mock.module("workflow/api", () => ({
+vi.mock("workflow/api", () => ({
   start: spies.start,
 }));
 
-mock.module("@/app/workflows/sandbox-lifecycle", () => ({
+vi.mock("@/app/workflows/sandbox-lifecycle", () => ({
   sandboxLifecycleWorkflow,
 }));
 
-mock.module("@/lib/db/sessions", () => ({
+vi.mock("@/lib/db/sessions", () => ({
   claimSessionLifecycleRunId: spies.claimSessionLifecycleRunId,
   getSessionById: spies.getSessionById,
   updateSession: spies.updateSession,
 }));
 
-mock.module("./lifecycle", () => ({
+vi.mock("./lifecycle", () => ({
   evaluateSandboxLifecycle: spies.evaluateSandboxLifecycle,
   getLifecycleDueAtMs: spies.getLifecycleDueAtMs,
 }));
 
-mock.module("./utils", () => ({
+vi.mock("./utils", () => ({
   canOperateOnSandbox: spies.canOperateOnSandbox,
 }));
 
@@ -97,8 +99,8 @@ const lifecycleKickModulePromise = import("./lifecycle-kick");
 
 const originalConsoleError = console.error;
 const originalConsoleLog = console.log;
-const consoleErrorSpy = mock(() => {});
-const consoleLogSpy = mock(() => {});
+const consoleErrorSpy = vi.fn(() => {});
+const consoleLogSpy = vi.fn(() => {});
 
 afterAll(() => {
   console.error = originalConsoleError;

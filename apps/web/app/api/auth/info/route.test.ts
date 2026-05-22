@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, mock, test } from "bun:test";
+import { afterEach, beforeEach, describe, expect, vi, test } from "vitest";
 import type { NextRequest } from "next/server";
 
 type TestSession = {
@@ -19,25 +19,25 @@ let isAdmin = false;
 
 const originalNodeEnv = process.env.NODE_ENV;
 
-mock.module("server-only", () => ({}));
+vi.mock("server-only", () => ({}));
 
-mock.module("@/lib/session/server", () => ({
+vi.mock("@/lib/session/server", () => ({
   getSessionFromReq: async () => session,
 }));
 
-mock.module("@/lib/db/users", () => ({
+vi.mock("@/lib/db/users", () => ({
   userExists: async () => exists,
   isUserAdmin: async () => isAdmin,
 }));
 
-mock.module("@/lib/github/users", () => ({
+vi.mock("@/lib/github/users", () => ({
   hasGitHubAccount: async () => hasGitHubLinked,
   getGitHubAccountId: async () => null,
   getGitHubUsername: async () => null,
   deleteGitHubAccountLink: async () => undefined,
 }));
 
-mock.module("@/lib/db/installations", () => ({
+vi.mock("@/lib/db/installations", () => ({
   getInstallationsByUserId: async () => installations,
 }));
 

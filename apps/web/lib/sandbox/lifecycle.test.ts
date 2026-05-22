@@ -1,11 +1,11 @@
-import { beforeAll, describe, expect, mock, test } from "bun:test";
+import { beforeAll, describe, expect, vi, test } from "vitest";
 
 import {
   SANDBOX_EXPIRES_BUFFER_MS,
   SANDBOX_INACTIVITY_TIMEOUT_MS,
 } from "./config";
 
-mock.module("server-only", () => ({}));
+vi.mock("server-only", () => ({}));
 
 let lifecycleModule: typeof import("./lifecycle");
 

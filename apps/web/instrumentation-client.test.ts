@@ -1,8 +1,8 @@
-import { describe, expect, mock, test } from "bun:test";
+import { describe, expect, vi, test } from "vitest";
 
 const initBotIdCalls: unknown[] = [];
 
-mock.module("botid/client/core", () => ({
+vi.mock("botid/client/core", () => ({
   initBotId: (config: unknown) => {
     initBotIdCalls.push(config);
   },

@@ -1,6 +1,6 @@
-import { beforeEach, describe, expect, mock, test } from "bun:test";
+import { beforeEach, describe, expect, vi, test } from "vitest";
 
-mock.module("server-only", () => ({}));
+vi.mock("server-only", () => ({}));
 
 interface ExecCall {
   command: string;
@@ -12,7 +12,7 @@ const execCalls: ExecCall[] = [];
 
 const sandbox = {
   workingDirectory: "/workspace",
-  exec: mock(async (command: string, cwd: string, timeoutMs: number) => {
+  exec: vi.fn(async (command: string, cwd: string, timeoutMs: number) => {
     execCalls.push({ command, cwd, timeoutMs });
 
     if (command === 'printf %s "$HOME"') {

@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, mock, test } from "bun:test";
+import { afterEach, beforeEach, describe, expect, vi, test } from "vitest";
 import type { NextRequest } from "next/server";
 
 let authSession: {
@@ -8,31 +8,31 @@ let authSession: {
 let hasLinkedGitHub = false;
 let installations: Array<{ installationId: number }> = [];
 
-mock.module("server-only", () => ({}));
+vi.mock("server-only", () => ({}));
 
-mock.module("arctic", () => ({
+vi.mock("arctic", () => ({
   generateState: () => "state-123",
 }));
 
-mock.module("@/lib/session/get-server-session", () => ({
+vi.mock("@/lib/session/get-server-session", () => ({
   getServerSession: async () => authSession,
 }));
 
-mock.module("@/lib/github/token", () => ({
+vi.mock("@/lib/github/token", () => ({
   getUserGitHubToken: async () => (hasLinkedGitHub ? "ghu_test" : null),
 }));
 
-mock.module("@/lib/github/users", () => ({
+vi.mock("@/lib/github/users", () => ({
   hasGitHubAccount: async () => hasLinkedGitHub,
   getGitHubUsername: async () => (hasLinkedGitHub ? "testuser" : null),
   getGitHubAccountId: async () => (hasLinkedGitHub ? "12345" : null),
 }));
 
-mock.module("@/lib/db/installations", () => ({
+vi.mock("@/lib/db/installations", () => ({
   getInstallationsByUserId: async () => installations,
 }));
 
-mock.module("@/lib/github/sync", () => ({
+vi.mock("@/lib/github/sync", () => ({
   syncUserInstallations: async () => installations.length,
 }));
 

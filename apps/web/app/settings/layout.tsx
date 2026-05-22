@@ -2,6 +2,7 @@
 
 import {
   ArrowLeft,
+  BarChart3,
   Cable,
   LogOut,
   Menu,
@@ -76,6 +77,12 @@ const baseSidebarItems = [
     label: "Preferences",
     href: "/settings/preferences",
     icon: SettingsIcon,
+  },
+  {
+    id: "analytics",
+    label: "Analytics",
+    href: "/settings/analytics",
+    icon: BarChart3,
   },
   {
     id: "connections",

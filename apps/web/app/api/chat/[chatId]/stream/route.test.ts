@@ -1,4 +1,4 @@
-import { afterAll, beforeEach, describe, expect, mock, test } from "bun:test";
+import { afterAll, beforeEach, describe, expect, vi, test } from "vitest";
 
 // ── Mutable state ──────────────────────────────────────────────────
 
@@ -27,7 +27,7 @@ let getRunShouldThrow = false;
 let lastStartIndex: number | undefined;
 
 const spies = {
-  updateChatActiveStreamId: mock(() => Promise.resolve()),
+  updateChatActiveStreamId: vi.fn(() => Promise.resolve()),
 };
 
 // ── Module mocks ───────────────────────────────────────────────────
@@ -39,7 +39,7 @@ globalThis.fetch = (async () =>
     headers: { "Content-Type": "application/json" },
   })) as unknown as typeof fetch;
 
-mock.module("ai", () => ({
+vi.mock("ai", () => ({
   createUIMessageStreamResponse: ({
     stream,
     headers,
@@ -61,7 +61,7 @@ function createWorkflowReadableStream(startIndex?: number) {
   });
 }
 
-mock.module("workflow/api", () => ({
+vi.mock("workflow/api", () => ({
   getRun: () => {
     if (getRunShouldThrow) throw new Error("Run not found");
     return {
@@ -74,15 +74,15 @@ mock.module("workflow/api", () => ({
   },
 }));
 
-mock.module("@/lib/chat/create-cancelable-readable-stream", () => ({
+vi.mock("@/lib/chat/create-cancelable-readable-stream", () => ({
   createCancelableReadableStream: (stream: ReadableStream) => stream,
 }));
 
-mock.module("@/lib/session/get-server-session", () => ({
+vi.mock("@/lib/session/get-server-session", () => ({
   getServerSession: async () => currentAuthSession,
 }));
 
-mock.module("@/lib/db/sessions", () => ({
+vi.mock("@/lib/db/sessions", () => ({
   getChatById: async () => chatRecord,
   getSessionById: async () => sessionRecord,
   updateChatActiveStreamId: spies.updateChatActiveStreamId,

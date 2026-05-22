@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, mock, test } from "bun:test";
+import { beforeEach, describe, expect, vi, test } from "vitest";
 
 const connectSandboxCalls: unknown[][] = [];
 
@@ -6,7 +6,7 @@ let connectSandboxResult: unknown = {
   workingDirectory: "/repo",
 };
 
-mock.module("@open-agents/sandbox", () => ({
+vi.mock("@open-agents/sandbox", () => ({
   connectSandbox: async (...args: unknown[]) => {
     connectSandboxCalls.push(args);
     return connectSandboxResult;

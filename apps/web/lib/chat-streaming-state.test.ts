@@ -1,6 +1,6 @@
-import { describe, expect, mock, test } from "bun:test";
+import { describe, expect, vi, test } from "vitest";
 
-mock.module("ai", () => ({
+vi.mock("ai", () => ({
   isToolUIPart: (part: { type?: unknown }) =>
     typeof part.type === "string" && part.type.startsWith("tool-"),
   isReasoningUIPart: (part: { type?: unknown }) => part.type === "reasoning",

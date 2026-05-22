@@ -1,4 +1,4 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test } from "vitest";
 import type { Sandbox } from "@open-agents/sandbox";
 import { createDownloadDiff, DownloadDiffError } from "./download-diff";
 

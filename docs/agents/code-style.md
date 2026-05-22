@@ -4,8 +4,8 @@ Detailed coding conventions, tool implementation patterns, and common patterns f
 
 ## Package Manager
 
-- Use **Bun exclusively** (not Node/npm/pnpm)
-- The monorepo uses `bun@1.2.14` as the package manager
+- Use **pnpm exclusively** (not Bun/npm/yarn)
+- The monorepo uses `pnpm@10.10.0` as the package manager
 
 ## TypeScript Configuration
 
@@ -18,7 +18,7 @@ Detailed coding conventions, tool implementation patterns, and common patterns f
 
 - Indent: 2 spaces
 - Quote style: double quotes for JavaScript/TypeScript
-- Run `bun run fix` before committing
+- Run `pnpm fix` before committing
 
 ## Naming Conventions
 
@@ -57,16 +57,9 @@ Detailed coding conventions, tool implementation patterns, and common patterns f
 
 ## Testing
 
-- Use Bun's test runner: `import { test, expect } from "bun:test"`
+- Use vitest as the test runner: `import { test, expect } from "vitest"`
 - Test files use `.test.ts` suffix
 - Colocate tests with source files
-
-## Bun APIs
-
-- Prefer Bun APIs over Node when available:
-  - `Bun.file()` for file operations
-  - `Bun.serve()` for HTTP servers
-  - `Bun.$` for shell commands in scripts
 
 ## AI SDK Patterns
 

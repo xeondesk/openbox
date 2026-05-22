@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, mock, test } from "bun:test";
+import { afterEach, beforeEach, describe, expect, vi, test } from "vitest";
 import type { VercelProjectSelection } from "@/lib/vercel/types";
 
 let currentSession: {
@@ -27,15 +27,15 @@ const provisioningKickCalls: string[] = [];
 
 const originalNodeEnv = process.env.NODE_ENV;
 
-mock.module("@/lib/session/get-server-session", () => ({
+vi.mock("@/lib/session/get-server-session", () => ({
   getServerSession: async () => currentSession,
 }));
 
-mock.module("@/lib/random-city", () => ({
+vi.mock("@/lib/random-city", () => ({
   getRandomCityName: () => "Oslo",
 }));
 
-mock.module("@/lib/db/user-preferences", () => ({
+vi.mock("@/lib/db/user-preferences", () => ({
   getUserPreferences: async () => ({
     defaultModelId: "anthropic/claude-haiku-4.5",
     defaultSubagentModelId: null,
@@ -52,18 +52,18 @@ mock.module("@/lib/db/user-preferences", () => ({
   }),
 }));
 
-mock.module("@/lib/db/vercel-project-links", () => ({
+vi.mock("@/lib/db/vercel-project-links", () => ({
   getVercelProjectLinkByRepo: async () => savedLink,
   upsertVercelProjectLink: async (input: Record<string, unknown>) => {
     upsertCalls.push(input);
   },
 }));
 
-mock.module("@/lib/vercel/token", () => ({
+vi.mock("@/lib/vercel/token", () => ({
   getUserVercelToken: async () => currentVercelToken,
 }));
 
-mock.module("@/lib/vercel/projects", () => ({
+vi.mock("@/lib/vercel/projects", () => ({
   isVercelInvalidTokenError: (error: unknown) =>
     matchingProjectsError !== null && error === matchingProjectsError,
   listMatchingVercelProjects: async () => {
@@ -74,7 +74,7 @@ mock.module("@/lib/vercel/projects", () => ({
   },
 }));
 
-mock.module("@/lib/db/sessions", () => ({
+vi.mock("@/lib/db/sessions", () => ({
   countSessionsByUserId: async () => existingSessionCount,
   createSessionWithInitialChat: async (input: {
     session: Record<string, unknown>;
@@ -102,7 +102,7 @@ mock.module("@/lib/db/sessions", () => ({
   getUsedSessionTitles: async () => new Set<string>(),
 }));
 
-mock.module("@/lib/sandbox/provisioning-kick", () => ({
+vi.mock("@/lib/sandbox/provisioning-kick", () => ({
   kickSandboxProvisioningWorkflow: async (sessionId: string) => {
     provisioningKickCalls.push(sessionId);
     return { status: "started", runId: `provision-${sessionId}` };

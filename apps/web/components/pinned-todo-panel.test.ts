@@ -1,4 +1,4 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test } from "vitest";
 import type { WebAgentUIMessage } from "@/app/types";
 import { getLatestTodos, type TodoItem } from "./pinned-todo-panel";
 

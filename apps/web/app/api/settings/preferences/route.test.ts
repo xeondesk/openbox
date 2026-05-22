@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, mock, test } from "bun:test";
+import { beforeEach, describe, expect, vi, test } from "vitest";
 
 let currentSession: {
   authProvider?: "vercel" | "github";
@@ -24,11 +24,11 @@ const preferencesState = {
 
 const updateCalls: Array<Record<string, unknown>> = [];
 
-mock.module("@/lib/session/get-server-session", () => ({
+vi.mock("@/lib/session/get-server-session", () => ({
   getServerSession: async () => currentSession,
 }));
 
-mock.module("@/lib/db/user-preferences", () => ({
+vi.mock("@/lib/db/user-preferences", () => ({
   getUserPreferences: async (_userId: string) => preferencesState,
   updateUserPreferences: async (
     _userId: string,

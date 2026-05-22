@@ -1,6 +1,6 @@
-import { beforeEach, describe, expect, mock, test } from "bun:test";
+import { beforeEach, describe, expect, vi, test } from "vitest";
 
-mock.module("server-only", () => ({}));
+vi.mock("server-only", () => ({}));
 
 interface KickCall {
   sessionId: string;
@@ -31,12 +31,12 @@ let sessionRecord: {
   updatedAt: Date;
 };
 
-mock.module("@/app/api/sessions/_lib/session-context", () => ({
+vi.mock("@/app/api/sessions/_lib/session-context", () => ({
   requireAuthenticatedUser: async () => ({ ok: true, userId: "user-1" }),
   requireOwnedSession: async () => ({ ok: true, sessionRecord }),
 }));
 
-mock.module("@/lib/db/sessions", () => ({
+vi.mock("@/lib/db/sessions", () => ({
   getChatsBySessionId: async () => [],
   getSessionById: async () => sessionRecord,
   updateSession: async (sessionId: string, patch: Record<string, unknown>) => {
@@ -49,7 +49,7 @@ mock.module("@/lib/db/sessions", () => ({
   },
 }));
 
-mock.module("@/lib/sandbox/lifecycle", () => ({
+vi.mock("@/lib/sandbox/lifecycle", () => ({
   getLifecycleDueAtMs: (source: {
     hibernateAfter: Date | null;
     lastActivityAt: Date | null;
@@ -67,7 +67,7 @@ mock.module("@/lib/sandbox/lifecycle", () => ({
     typeof state?.expiresAt === "number" ? new Date(state.expiresAt) : null,
 }));
 
-mock.module("@/lib/sandbox/lifecycle-kick", () => ({
+vi.mock("@/lib/sandbox/lifecycle-kick", () => ({
   kickSandboxLifecycleWorkflow: (input: KickCall) => {
     kickCalls.push(input);
   },

@@ -1,4 +1,4 @@
-import { afterAll, beforeEach, describe, expect, mock, test } from "bun:test";
+import { afterAll, beforeEach, describe, expect, vi, test } from "vitest";
 
 // ── Mutable state ──────────────────────────────────────────────────
 
@@ -25,15 +25,15 @@ let sessionRecord: {
 let cancelShouldThrow = false;
 
 const spies = {
-  cancel: mock(() => {
+  cancel: vi.fn(() => {
     if (cancelShouldThrow) throw new Error("Cancel failed");
     return Promise.resolve();
   }),
-  compareAndSetChatActiveStreamId: mock(() => Promise.resolve(true)),
-  createChatMessageIfNotExists: mock(
+  compareAndSetChatActiveStreamId: vi.fn(() => Promise.resolve(true)),
+  createChatMessageIfNotExists: vi.fn(
     () => Promise.resolve({ id: "msg-1" }) as Promise<unknown>,
   ),
-  updateChatAssistantActivity: mock(() => Promise.resolve()),
+  updateChatAssistantActivity: vi.fn(() => Promise.resolve()),
 };
 
 // ── Module mocks ───────────────────────────────────────────────────
@@ -45,17 +45,17 @@ globalThis.fetch = (async () =>
     headers: { "Content-Type": "application/json" },
   })) as unknown as typeof fetch;
 
-mock.module("workflow/api", () => ({
+vi.mock("workflow/api", () => ({
   getRun: () => ({
     cancel: spies.cancel,
   }),
 }));
 
-mock.module("@/lib/session/get-server-session", () => ({
+vi.mock("@/lib/session/get-server-session", () => ({
   getServerSession: async () => currentAuthSession,
 }));
 
-mock.module("@/lib/db/sessions", () => ({
+vi.mock("@/lib/db/sessions", () => ({
   getChatById: async () => chatRecord,
   getSessionById: async () => sessionRecord,
   compareAndSetChatActiveStreamId: spies.compareAndSetChatActiveStreamId,

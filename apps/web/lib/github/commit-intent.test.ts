@@ -1,6 +1,6 @@
-import { describe, expect, mock, test } from "bun:test";
+import { describe, expect, vi, test } from "vitest";
 
-mock.module("./users", () => ({
+vi.mock("./users", () => ({
   getGitHubUserProfile: async () => null,
 }));
 

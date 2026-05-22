@@ -1,6 +1,6 @@
-import { afterEach, beforeEach, describe, expect, mock, test } from "bun:test";
+import { afterEach, beforeEach, describe, expect, vi, test } from "vitest";
 
-mock.module("server-only", () => ({}));
+vi.mock("server-only", () => ({}));
 
 let sessionRecord: { userId: string } | null = null;
 let chats: Array<{ id: string }> = [];
@@ -33,20 +33,20 @@ function restoreEnv() {
   }
 }
 
-mock.module("@/app/api/generate-pr/_lib/generate-pr-helpers", () => ({
+vi.mock("@/app/api/generate-pr/_lib/generate-pr-helpers", () => ({
   getConversationContext: async () => "",
 }));
 
-mock.module("@/lib/db/sessions", () => ({
+vi.mock("@/lib/db/sessions", () => ({
   getSessionById: async () => sessionRecord,
   getChatsBySessionId: async () => chats,
 }));
 
-mock.module("@/lib/github/users", () => ({
+vi.mock("@/lib/github/users", () => ({
   getGitHubUserProfile: async () => githubProfile,
 }));
 
-mock.module("@/lib/db/client", () => ({
+vi.mock("@/lib/db/client", () => ({
   db: {
     query: {
       users: {

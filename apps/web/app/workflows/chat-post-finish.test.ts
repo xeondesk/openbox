@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, mock, test } from "bun:test";
+import { beforeEach, describe, expect, vi, test } from "vitest";
 import type { WebAgentUIMessage } from "@/app/types";
 
 // ── Mutable spy state ──────────────────────────────────────────────
@@ -9,53 +9,53 @@ let upsertChatMessageScopedResult: { status: string } = {
   status: "inserted",
 };
 
-const sandboxExec = mock(() =>
+const sandboxExec = vi.fn(() =>
   Promise.resolve({ success: true, stdout: " M file.ts\n" }),
 );
 
 const spies = {
-  claimChatActiveStreamId: mock(() => Promise.resolve(true)),
-  compareAndSetChatActiveStreamId: mock(() => Promise.resolve(true)),
-  createChatMessageIfNotExists: mock(
+  claimChatActiveStreamId: vi.fn(() => Promise.resolve(true)),
+  compareAndSetChatActiveStreamId: vi.fn(() => Promise.resolve(true)),
+  createChatMessageIfNotExists: vi.fn(
     () =>
       Promise.resolve(createChatMessageIfNotExistsResult) as Promise<unknown>,
   ),
-  isFirstChatMessage: mock(
+  isFirstChatMessage: vi.fn(
     () => Promise.resolve(isFirstChatMessageResult) as Promise<boolean>,
   ),
-  touchChat: mock(() => Promise.resolve()),
-  updateChat: mock((_chatId: string, _patch: Record<string, unknown>) =>
+  touchChat: vi.fn(() => Promise.resolve()),
+  updateChat: vi.fn((_chatId: string, _patch: Record<string, unknown>) =>
     Promise.resolve(),
   ),
-  updateChatAssistantActivity: mock(() => Promise.resolve()),
-  updateSession: mock((_sessionId: string, _patch: Record<string, unknown>) =>
+  updateChatAssistantActivity: vi.fn(() => Promise.resolve()),
+  updateSession: vi.fn((_sessionId: string, _patch: Record<string, unknown>) =>
     Promise.resolve(),
   ),
-  upsertChatMessageScoped: mock(() =>
+  upsertChatMessageScoped: vi.fn(() =>
     Promise.resolve(upsertChatMessageScopedResult),
   ),
-  recordUsage: mock(() => Promise.resolve()),
-  buildActiveLifecycleUpdate: mock(() => ({})),
-  buildLifecycleActivityUpdate: mock(() => ({})),
-  connectSandbox: mock(() =>
+  recordUsage: vi.fn(() => Promise.resolve()),
+  buildActiveLifecycleUpdate: vi.fn(() => ({})),
+  buildLifecycleActivityUpdate: vi.fn(() => ({})),
+  connectSandbox: vi.fn(() =>
     Promise.resolve({
       workingDirectory: "/vercel/sandbox",
       exec: sandboxExec,
       getState: () => ({ type: "vercel", sandboxId: "sb-1" }),
     }),
   ),
-  computeAndCacheDiff: mock(() => Promise.resolve()),
-  performAutoCommit: mock(() =>
+  computeAndCacheDiff: vi.fn(() => Promise.resolve()),
+  performAutoCommit: vi.fn(() =>
     Promise.resolve({ committed: true, pushed: true }),
   ),
-  performAutoCreatePr: mock(() =>
+  performAutoCreatePr: vi.fn(() =>
     Promise.resolve({ created: true, syncedExisting: false, skipped: false }),
   ),
 };
 
 // ── Module mocks (must appear before the module-under-test import) ──
 
-mock.module("@/lib/db/sessions", () => ({
+vi.mock("@/lib/db/sessions", () => ({
   claimChatActiveStreamId: spies.claimChatActiveStreamId,
   compareAndSetChatActiveStreamId: spies.compareAndSetChatActiveStreamId,
   createChatMessageIfNotExists: spies.createChatMessageIfNotExists,
@@ -67,28 +67,28 @@ mock.module("@/lib/db/sessions", () => ({
   upsertChatMessageScoped: spies.upsertChatMessageScoped,
 }));
 
-mock.module("@/lib/db/usage", () => ({
+vi.mock("@/lib/db/usage", () => ({
   recordUsage: spies.recordUsage,
 }));
 
-mock.module("@/lib/sandbox/lifecycle", () => ({
+vi.mock("@/lib/sandbox/lifecycle", () => ({
   buildActiveLifecycleUpdate: spies.buildActiveLifecycleUpdate,
   buildLifecycleActivityUpdate: spies.buildLifecycleActivityUpdate,
 }));
 
-mock.module("@open-agents/sandbox", () => ({
+vi.mock("@open-agents/sandbox", () => ({
   connectSandbox: spies.connectSandbox,
 }));
 
-mock.module("@/lib/diff/compute-diff", () => ({
+vi.mock("@/lib/diff/compute-diff", () => ({
   computeAndCacheDiff: spies.computeAndCacheDiff,
 }));
 
-mock.module("@/lib/chat/auto-commit-direct", () => ({
+vi.mock("@/lib/chat/auto-commit-direct", () => ({
   performAutoCommit: spies.performAutoCommit,
 }));
 
-mock.module("@/lib/chat/auto-pr-direct", () => ({
+vi.mock("@/lib/chat/auto-pr-direct", () => ({
   performAutoCreatePr: spies.performAutoCreatePr,
 }));
 

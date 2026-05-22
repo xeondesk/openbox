@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth/config";
 import { getServerSession } from "@/lib/session/get-server-session";
 import { getUserVercelToken } from "@/lib/vercel/token";
+import { logAuthEvent } from "@/lib/monitoring/audit-logger";
 
 const VERCEL_REVOKE_URL = "https://api.vercel.com/login/oauth/token/revoke";
 
@@ -51,6 +52,12 @@ export async function signOut(): Promise<void> {
         error instanceof Error ? error.message : "Unknown error",
       );
     }
+    
+    // Log logout event
+    const headersList = await headers();
+    const ipAddress = headersList.get("x-forwarded-for") || headersList.get("x-real-ip") || undefined;
+    const userAgent = headersList.get("user-agent") || undefined;
+    await logAuthEvent("LOGOUT", session.user.id, ipAddress, userAgent);
   }
 
   await auth.api.signOut({ headers: await headers() });

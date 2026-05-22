@@ -1,6 +1,6 @@
-import { afterAll, beforeEach, describe, expect, mock, test } from "bun:test";
+import { afterAll, beforeEach, describe, expect, vi, test } from "vitest";
 
-mock.module("server-only", () => ({}));
+vi.mock("server-only", () => ({}));
 
 interface TestSessionRecord {
   id: string;
@@ -61,24 +61,26 @@ let preferencesState: {
 let cachedSkillsState: unknown = null;
 let discoverSkillDirsCalls: string[][] = [];
 
-const claimChatActiveStreamIdSpy = mock(
+const claimChatActiveStreamIdSpy = vi.fn(
   async () => claimActiveStreamDefaultResult,
 );
 
-const compareAndSetChatActiveStreamIdSpy = mock(async () => {
+const compareAndSetChatActiveStreamIdSpy = vi.fn(async () => {
   const nextResult = compareAndSetResults.shift();
   return nextResult ?? compareAndSetDefaultResult;
 });
 
-const createChatMessageIfNotExistsSpy = mock(async ({ id }: { id: string }) => {
-  routeEvents.push("persist-user");
-  return { id };
-});
-const touchChatSpy = mock(async () => {
+const createChatMessageIfNotExistsSpy = vi.fn(
+  async ({ id }: { id: string }) => {
+    routeEvents.push("persist-user");
+    return { id };
+  },
+);
+const touchChatSpy = vi.fn(async () => {
   routeEvents.push("touch-chat");
 });
-const isFirstChatMessageSpy = mock(async () => true);
-const updateChatSpy = mock(async () => {
+const isFirstChatMessageSpy = vi.fn(async () => true);
+const updateChatSpy = vi.fn(async () => {
   routeEvents.push("update-chat");
 });
 
@@ -93,13 +95,13 @@ globalThis.fetch = (async (_input: RequestInfo | URL) => {
   });
 }) as typeof fetch;
 
-mock.module("next/server", () => ({
+vi.mock("next/server", () => ({
   after: (task: Promise<unknown>) => {
     void Promise.resolve(task);
   },
 }));
 
-mock.module("ai", () => ({
+vi.mock("ai", () => ({
   createUIMessageStreamResponse: ({
     stream,
     headers,
@@ -112,7 +114,7 @@ mock.module("ai", () => ({
     part.type === "tool-invocation" || part.type.startsWith("tool-"),
 }));
 
-mock.module("workflow/api", () => ({
+vi.mock("workflow/api", () => ({
   start: async (...args: unknown[]) => {
     routeEvents.push("start-workflow");
     startCalls.push(args);
@@ -144,23 +146,23 @@ mock.module("workflow/api", () => ({
   },
 }));
 
-mock.module("@/app/workflows/chat", () => ({
+vi.mock("@/app/workflows/chat", () => ({
   runAgentWorkflow: async () => {},
 }));
 
-mock.module("@/lib/chat/create-cancelable-readable-stream", () => ({
+vi.mock("@/lib/chat/create-cancelable-readable-stream", () => ({
   createCancelableReadableStream: (stream: ReadableStream) => stream,
 }));
 
-mock.module("@open-agents/agent", () => ({
+vi.mock("@open-agents/agent", () => ({
   discoverSkills: async (_sandbox: unknown, skillDirs: string[]) => {
     discoverSkillDirsCalls.push(skillDirs);
     return [];
   },
-  gateway: () => "mock-model",
+  gateway: () => "vi-model",
 }));
 
-mock.module("@open-agents/sandbox", () => ({
+vi.mock("@open-agents/sandbox", () => ({
   connectSandbox: async () => ({
     workingDirectory: "/vercel/sandbox",
     exec: async () => ({ success: true, stdout: "", stderr: "" }),
@@ -172,7 +174,7 @@ mock.module("@open-agents/sandbox", () => ({
   }),
 }));
 
-mock.module("@/lib/db/sessions", () => ({
+vi.mock("@/lib/db/sessions", () => ({
   claimChatActiveStreamId: claimChatActiveStreamIdSpy,
   compareAndSetChatActiveStreamId: compareAndSetChatActiveStreamIdSpy,
   countUserMessagesByUserId: async () => existingUserMessageCount,
@@ -191,32 +193,32 @@ mock.module("@/lib/db/sessions", () => ({
   upsertChatMessageScoped: async () => ({ status: "inserted" as const }),
 }));
 
-mock.module("@/lib/db/user-preferences", () => ({
+vi.mock("@/lib/db/user-preferences", () => ({
   getUserPreferences: async () => preferencesState,
 }));
 
-mock.module("@/lib/skills-cache", () => ({
+vi.mock("@/lib/skills-cache", () => ({
   getCachedSkills: async () => cachedSkillsState,
   setCachedSkills: async () => {},
 }));
 
-mock.module("@/lib/github/token", () => ({
+vi.mock("@/lib/github/token", () => ({
   getUserGitHubToken: async () => null,
 }));
 
-mock.module("@/lib/sandbox/config", () => ({
+vi.mock("@/lib/sandbox/config", () => ({
   DEFAULT_SANDBOX_PORTS: [],
 }));
 
-mock.module("@/lib/sandbox/lifecycle", () => ({
+vi.mock("@/lib/sandbox/lifecycle", () => ({
   buildActiveLifecycleUpdate: () => ({}),
 }));
 
-mock.module("@/lib/sandbox/utils", () => ({
+vi.mock("@/lib/sandbox/utils", () => ({
   isSandboxActive: () => isSandboxActive,
 }));
 
-mock.module("@/lib/session/get-server-session", () => ({
+vi.mock("@/lib/session/get-server-session", () => ({
   getServerSession: async () => currentAuthSession,
 }));
 
