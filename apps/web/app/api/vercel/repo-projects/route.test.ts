@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, mock, test } from "bun:test";
+import { beforeEach, describe, expect, vi, test } from "vitest";
 import type { VercelProjectSelection } from "@/lib/vercel/types";
 
 let currentSession: { user: { id: string } } | null = {
@@ -9,19 +9,19 @@ let savedLink: VercelProjectSelection | null = null;
 let projects: VercelProjectSelection[] = [];
 let projectsError: Error | null = null;
 
-mock.module("@/lib/session/get-server-session", () => ({
+vi.mock("@/lib/session/get-server-session", () => ({
   getServerSession: async () => currentSession,
 }));
 
-mock.module("@/lib/vercel/token", () => ({
+vi.mock("@/lib/vercel/token", () => ({
   getUserVercelToken: async () => currentToken,
 }));
 
-mock.module("@/lib/db/vercel-project-links", () => ({
+vi.mock("@/lib/db/vercel-project-links", () => ({
   getVercelProjectLinkByRepo: async () => savedLink,
 }));
 
-mock.module("@/lib/vercel/projects", () => ({
+vi.mock("@/lib/vercel/projects", () => ({
   isVercelInvalidTokenError: (error: unknown) =>
     projectsError !== null && error === projectsError,
   listMatchingVercelProjects: async () => {

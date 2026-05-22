@@ -1,12 +1,12 @@
-import { beforeEach, describe, expect, mock, test } from "bun:test";
+import { beforeEach, describe, expect, vi, test } from "vitest";
 import {
   DEFAULT_SANDBOX_TIMEOUT_MS,
   DEFAULT_SANDBOX_VCPUS,
 } from "@/lib/sandbox/config";
 
-mock.module("server-only", () => ({}));
+vi.mock("server-only", () => ({}));
 
-mock.module("botid/server", () => ({
+vi.mock("botid/server", () => ({
   checkBotId: async () => ({ isBot: false }),
 }));
 
@@ -71,7 +71,7 @@ let currentVercelAuthInfo: TestVercelAuthInfo | null;
 let currentDotenvContent: string;
 let currentDotenvError: Error | null;
 
-mock.module("@/lib/session/get-server-session", () => ({
+vi.mock("@/lib/session/get-server-session", () => ({
   getServerSession: async () => ({
     user: {
       id: "user-1",
@@ -82,14 +82,14 @@ mock.module("@/lib/session/get-server-session", () => ({
   }),
 }));
 
-mock.module("@/lib/github/users", () => ({
+vi.mock("@/lib/github/users", () => ({
   getGitHubUserProfile: async () => ({
     externalUserId: "12345",
     username: "nico-gh",
   }),
 }));
 
-mock.module("@/lib/github/urls", () => ({
+vi.mock("@/lib/github/urls", () => ({
   parseGitHubHttpsUrl: (repoUrl: string) => {
     let parsed: URL;
     try {
@@ -108,7 +108,7 @@ mock.module("@/lib/github/urls", () => ({
   },
 }));
 
-mock.module("@/lib/github/access", () => ({
+vi.mock("@/lib/github/access", () => ({
   verifyRepoAccess: async () => ({
     ok: true,
     installationId: 999,
@@ -118,9 +118,9 @@ mock.module("@/lib/github/access", () => ({
   getRepoAccessErrorMessage: () => "Access denied",
 }));
 
-mock.module("@/lib/github/app", () => ({
+vi.mock("@/lib/github/app", () => ({
   mintInstallationToken: async () => ({
-    token: "installation-token-mock",
+    token: "installation-token-vi",
     expiresAt: null,
     installationId: 999,
     repositoryIds: [123],
@@ -129,12 +129,12 @@ mock.module("@/lib/github/app", () => ({
   revokeInstallationToken: async () => {},
 }));
 
-mock.module("@/lib/vercel/token", () => ({
+vi.mock("@/lib/vercel/token", () => ({
   getUserVercelAuthInfo: async () => currentVercelAuthInfo,
   getUserVercelToken: async () => currentVercelAuthInfo?.token ?? null,
 }));
 
-mock.module("@/lib/vercel/projects", () => ({
+vi.mock("@/lib/vercel/projects", () => ({
   buildDevelopmentDotenvFromVercelProject: async (
     input: Record<string, unknown>,
   ) => {
@@ -146,7 +146,7 @@ mock.module("@/lib/vercel/projects", () => ({
   },
 }));
 
-mock.module("@/lib/db/sessions", () => ({
+vi.mock("@/lib/db/sessions", () => ({
   getChatsBySessionId: async () => [],
   getSessionById: async () => sessionRecord,
   updateSession: async (sessionId: string, patch: Record<string, unknown>) => {
@@ -158,13 +158,13 @@ mock.module("@/lib/db/sessions", () => ({
   },
 }));
 
-mock.module("@/lib/sandbox/lifecycle-kick", () => ({
+vi.mock("@/lib/sandbox/lifecycle-kick", () => ({
   kickSandboxLifecycleWorkflow: (input: KickCall) => {
     kickCalls.push(input);
   },
 }));
 
-mock.module("@/lib/skills/global-skill-installer", () => ({
+vi.mock("@/lib/skills/global-skill-installer", () => ({
   installGlobalSkills: async (params: {
     sandbox: {
       workingDirectory: string;
@@ -199,7 +199,7 @@ mock.module("@/lib/skills/global-skill-installer", () => ({
   },
 }));
 
-mock.module("@open-agents/sandbox", () => ({
+vi.mock("@open-agents/sandbox", () => ({
   connectSandbox: async (config: ConnectConfig) => {
     connectConfigs.push(config);
 
@@ -341,7 +341,7 @@ describe("/api/sandbox lifecycle kicks", () => {
         },
       },
       options: {
-        githubToken: "installation-token-mock",
+        githubToken: "installation-token-vi",
       },
     });
     expect(connectConfigs[0]?.state.source).not.toHaveProperty("token");

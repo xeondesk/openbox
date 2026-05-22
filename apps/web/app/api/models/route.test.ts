@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, mock, test } from "bun:test";
+import { afterEach, beforeEach, describe, expect, vi, test } from "vitest";
 
 interface MockGatewayModel extends Record<string, unknown> {
   id: string;
@@ -30,7 +30,7 @@ function getRequestUrl(input: RequestInfo | URL): string {
   return input.url;
 }
 
-mock.module("ai", () => ({
+vi.mock("ai", () => ({
   gateway: {
     getAvailableModels: async () => {
       if (gatewayError) {
@@ -42,9 +42,9 @@ mock.module("ai", () => ({
   },
 }));
 
-mock.module("server-only", () => ({}));
+vi.mock("server-only", () => ({}));
 
-mock.module("@/lib/session/get-server-session", () => ({
+vi.mock("@/lib/session/get-server-session", () => ({
   getServerSession: async () => currentSession,
 }));
 
@@ -62,15 +62,17 @@ describe("/api/models context window enrichment", () => {
     modelsDevApiData = {};
     currentSession = null;
 
-    globalThis.fetch = mock((input: RequestInfo | URL, _init?: RequestInit) => {
-      requestedUrls.push(getRequestUrl(input));
-      return Promise.resolve(
-        new Response(JSON.stringify(modelsDevApiData), {
-          status: 200,
-          headers: { "Content-Type": "application/json" },
-        }),
-      );
-    }) as unknown as typeof fetch;
+    globalThis.fetch = vi.fn(
+      (input: RequestInfo | URL, _init?: RequestInit) => {
+        requestedUrls.push(getRequestUrl(input));
+        return Promise.resolve(
+          new Response(JSON.stringify(modelsDevApiData), {
+            status: 200,
+            headers: { "Content-Type": "application/json" },
+          }),
+        );
+      },
+    ) as unknown as typeof fetch;
   });
 
   test("overrides gateway context windows from models.dev", async () => {

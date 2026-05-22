@@ -1,8 +1,8 @@
-import { beforeEach, describe, expect, mock, test } from "bun:test";
+import { beforeEach, describe, expect, vi, test } from "vitest";
 
 import type { AutoCreatePrResult } from "./auto-pr-direct";
 
-mock.module("server-only", () => ({}));
+vi.mock("server-only", () => ({}));
 
 type ExecResult = {
   success: boolean;
@@ -54,7 +54,7 @@ let prContentResult:
   mergeBase: "abc123",
 };
 
-const execSpy = mock(async (command: string): Promise<ExecResult> => {
+const execSpy = vi.fn(async (command: string): Promise<ExecResult> => {
   for (const [prefix, result] of execResults) {
     if (command.startsWith(prefix) || command.includes(prefix)) {
       return result;
@@ -64,33 +64,35 @@ const execSpy = mock(async (command: string): Promise<ExecResult> => {
   return { success: true, stdout: "", stderr: "" };
 });
 
-const updateSessionSpy = mock(async () => {});
-const fetchGitHubBranchesSpy = mock(async () => cachedBranchesResult);
-const findPullRequestSpy = mock(async () => findPullRequestResult);
-const openPullRequestSpy = mock(async () => openPullRequestResult);
-const generatePullRequestContentFromSandboxSpy = mock(
+const updateSessionSpy = vi.fn(async () => {});
+const fetchGitHubBranchesSpy = vi.fn(async () => cachedBranchesResult);
+const findPullRequestSpy = vi.fn(async () => findPullRequestResult);
+const openPullRequestSpy = vi.fn(async () => openPullRequestResult);
+const generatePullRequestContentFromSandboxSpy = vi.fn(
   async () => prContentResult,
 );
-const getUserGitHubTokenSpy = mock(async (_userId?: string) => userTokenResult);
-const getGitHubAppUserTokenSpy = mock(async (_userId?: string) =>
+const getUserGitHubTokenSpy = vi.fn(
+  async (_userId?: string) => userTokenResult,
+);
+const getGitHubAppUserTokenSpy = vi.fn(async (_userId?: string) =>
   getUserGitHubTokenSpy(_userId),
 );
-const withTemporaryGitHubAuthSpy = mock(
+const withTemporaryGitHubAuthSpy = vi.fn(
   async (
     _sandbox: unknown,
     _token: string | undefined,
     operation: () => Promise<unknown>,
   ) => operation(),
 );
-const mintInstallationTokenSpy = mock(async () => ({
+const mintInstallationTokenSpy = vi.fn(async () => ({
   token: "ghs_read",
   expiresAt: null,
   installationId: 999,
   repositoryIds: [123],
   permissions: { contents: "read" },
 }));
-const revokeInstallationTokenSpy = mock(async () => {});
-const verifyRepoAccessSpy = mock(async () => ({
+const revokeInstallationTokenSpy = vi.fn(async () => {});
+const verifyRepoAccessSpy = vi.fn(async () => ({
   ok: true,
   installationId: 999,
   repositoryId: 123,
@@ -102,45 +104,45 @@ const sandbox = {
   exec: execSpy,
 };
 
-mock.module("@open-agents/sandbox", () => ({
+vi.mock("@open-agents/sandbox", () => ({
   withTemporaryGitHubAuth: withTemporaryGitHubAuthSpy,
 }));
 
-mock.module("@/lib/git/helpers", () => ({
+vi.mock("@/lib/git/helpers", () => ({
   looksLikeCommitHash: (value: string) => /^[0-9a-f]{7,40}$/i.test(value),
 }));
 
-mock.module("@/lib/db/sessions", () => ({
+vi.mock("@/lib/db/sessions", () => ({
   getChatsBySessionId: async () => [],
   getSessionById: async () => null,
   updateSession: updateSessionSpy,
 }));
 
-mock.module("@/lib/github/repos", () => ({
+vi.mock("@/lib/github/repos", () => ({
   fetchGitHubBranches: fetchGitHubBranchesSpy,
 }));
 
-mock.module("@/lib/github/token", () => ({
+vi.mock("@/lib/github/token", () => ({
   getUserGitHubToken: getUserGitHubTokenSpy,
   getGitHubAppUserToken: getGitHubAppUserTokenSpy,
 }));
 
-mock.module("@/lib/github/access", () => ({
+vi.mock("@/lib/github/access", () => ({
   verifyRepoAccess: verifyRepoAccessSpy,
   getRepoAccessErrorMessage: () => "Access denied",
 }));
 
-mock.module("@/lib/github/app", () => ({
+vi.mock("@/lib/github/app", () => ({
   mintInstallationToken: mintInstallationTokenSpy,
   revokeInstallationToken: revokeInstallationTokenSpy,
 }));
 
-mock.module("@/lib/github/pulls", () => ({
+vi.mock("@/lib/github/pulls", () => ({
   findPullRequest: findPullRequestSpy,
   openPullRequest: openPullRequestSpy,
 }));
 
-mock.module("@/lib/github/pr-content", () => ({
+vi.mock("@/lib/github/pr-content", () => ({
   generatePullRequestContentFromSandbox:
     generatePullRequestContentFromSandboxSpy,
 }));

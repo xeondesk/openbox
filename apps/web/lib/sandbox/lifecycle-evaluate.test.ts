@@ -1,6 +1,6 @@
-import { beforeEach, describe, expect, mock, test } from "bun:test";
+import { beforeEach, describe, expect, vi, test } from "vitest";
 
-mock.module("server-only", () => ({}));
+vi.mock("server-only", () => ({}));
 
 interface TestSessionRecord {
   id: string;
@@ -27,29 +27,29 @@ interface TestSessionRecord {
 let sessionRecord: TestSessionRecord | null = null;
 let chatsInSession: Array<{ id: string; activeStreamId: string | null }> = [];
 
-const stopSpy = mock(async () => undefined);
+const stopSpy = vi.fn(async () => undefined);
 
 const spies = {
-  getChatsBySessionId: mock(
+  getChatsBySessionId: vi.fn(
     async (_sessionId: string) => chatsInSession as never,
   ),
-  getSessionById: mock(async (_sessionId: string) => sessionRecord as never),
-  updateSession: mock(
+  getSessionById: vi.fn(async (_sessionId: string) => sessionRecord as never),
+  updateSession: vi.fn(
     async (_sessionId: string, patch: Record<string, unknown>) => patch,
   ),
-  connectSandbox: mock(async () => ({
+  connectSandbox: vi.fn(async () => ({
     stop: stopSpy,
   })),
   stop: stopSpy,
 };
 
-mock.module("@/lib/db/sessions", () => ({
+vi.mock("@/lib/db/sessions", () => ({
   getChatsBySessionId: spies.getChatsBySessionId,
   getSessionById: spies.getSessionById,
   updateSession: spies.updateSession,
 }));
 
-mock.module("@open-agents/sandbox", () => ({
+vi.mock("@open-agents/sandbox", () => ({
   connectSandbox: spies.connectSandbox,
 }));
 

@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, mock, test } from "bun:test";
+import { beforeEach, describe, expect, vi, test } from "vitest";
 
 type AuthResult =
   | {
@@ -61,20 +61,20 @@ const createChatCalls: Array<{
   modelId: string;
 }> = [];
 
-mock.module("@/app/api/sessions/_lib/session-context", () => ({
+vi.mock("@/app/api/sessions/_lib/session-context", () => ({
   requireAuthenticatedUser: async () => authResult,
   requireOwnedSession: async () => ownedSessionResult,
 }));
 
-mock.module("nanoid", () => ({
+vi.mock("nanoid", () => ({
   nanoid: () => "generated-chat-id",
 }));
 
-mock.module("@/lib/session/get-server-session", () => ({
+vi.mock("@/lib/session/get-server-session", () => ({
   getServerSession: async () => currentSession,
 }));
 
-mock.module("@/lib/db/sessions", () => ({
+vi.mock("@/lib/db/sessions", () => ({
   getChatSummariesBySessionId: async (sessionId: string, userId: string) => {
     getSummaryCalls.push({ sessionId, userId });
     return chatSummaries;
@@ -91,7 +91,7 @@ mock.module("@/lib/db/sessions", () => ({
   },
 }));
 
-mock.module("@/lib/db/user-preferences", () => ({
+vi.mock("@/lib/db/user-preferences", () => ({
   getUserPreferences: async () => ({
     defaultModelId: "model-default",
     defaultSubagentModelId: null,

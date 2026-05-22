@@ -1,4 +1,4 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test } from "vitest";
 import { getInitialIsOnlyChatInSession } from "./only-chat-in-session";
 
 describe("getInitialIsOnlyChatInSession", () => {

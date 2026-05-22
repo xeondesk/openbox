@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, mock, test } from "bun:test";
+import { beforeEach, describe, expect, vi, test } from "vitest";
 
 let shareRecord: { id: string; chatId: string } | null = {
   id: "share-1",
@@ -89,12 +89,12 @@ let messageRows: Array<{ parts: unknown; role: string; createdAt: Date }> = [
   },
 ];
 
-mock.module("@/lib/db/sessions-cache", () => ({
+vi.mock("@/lib/db/sessions-cache", () => ({
   getShareByIdCached: async () => shareRecord,
   getSessionByIdCached: async () => sessionRecord,
 }));
 
-mock.module("@/lib/db/sessions", () => ({
+vi.mock("@/lib/db/sessions", () => ({
   getChatById: async () => chatRecord,
   getChatMessages: async () => messageRows,
 }));

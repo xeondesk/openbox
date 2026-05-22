@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, mock, test } from "bun:test";
+import { beforeEach, describe, expect, vi, test } from "vitest";
 
 // ── Spy state ──────────────────────────────────────────────────────
 
@@ -17,17 +17,17 @@ type ExecHandler = (
 let execHandler: ExecHandler;
 let readFileHandler: (path: string, encoding: string) => Promise<string>;
 
-const updateSessionSpy = mock((_id: string, _patch: Record<string, unknown>) =>
+const updateSessionSpy = vi.fn((_id: string, _patch: Record<string, unknown>) =>
   Promise.resolve(),
 );
 
 // ── Module mocks ───────────────────────────────────────────────────
 
-mock.module("@/lib/db/sessions", () => ({
+vi.mock("@/lib/db/sessions", () => ({
   updateSession: updateSessionSpy,
 }));
 
-mock.module("@/lib/sandbox/utils", () => ({
+vi.mock("@/lib/sandbox/utils", () => ({
   isSandboxUnavailableError: (msg: string) =>
     msg.includes("sandbox unavailable"),
 }));

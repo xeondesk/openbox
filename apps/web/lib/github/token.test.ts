@@ -1,9 +1,9 @@
-import { beforeEach, describe, expect, mock, test } from "bun:test";
+import { beforeEach, describe, expect, vi, test } from "vitest";
 
 let getAccessTokenResult: { accessToken?: string | null } | null;
 let getAccessTokenError: Error | null;
 
-const getAccessTokenSpy = mock(
+const getAccessTokenSpy = vi.fn(
   async (_input: { body: { providerId: string; userId: string } }) => {
     if (getAccessTokenError) {
       throw getAccessTokenError;
@@ -13,15 +13,15 @@ const getAccessTokenSpy = mock(
   },
 );
 
-mock.module("server-only", () => ({}));
+vi.mock("server-only", () => ({}));
 
-mock.module("next/headers", () => ({
+vi.mock("next/headers", () => ({
   headers: async () => {
     throw new Error("headers should not be called");
   },
 }));
 
-mock.module("@/lib/auth/config", () => ({
+vi.mock("@/lib/auth/config", () => ({
   auth: {
     api: {
       getAccessToken: getAccessTokenSpy,
@@ -29,11 +29,11 @@ mock.module("@/lib/auth/config", () => ({
   },
 }));
 
-mock.module("@/lib/db/client", () => ({
+vi.mock("@/lib/db/client", () => ({
   db: {},
 }));
 
-mock.module("@/lib/db/schema", () => ({
+vi.mock("@/lib/db/schema", () => ({
   accounts: {},
 }));
 

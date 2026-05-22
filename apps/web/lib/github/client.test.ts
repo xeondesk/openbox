@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, mock, test } from "bun:test";
+import { beforeEach, describe, expect, vi, test } from "vitest";
 
 type MockPullRequest = {
   number: number;
@@ -140,15 +140,15 @@ class MockOctokit {
     },
   };
 
-  graphql = mock(async () => ({}));
+  graphql = vi.fn(async () => ({}));
 }
 
-mock.module("@octokit/rest", () => ({
+vi.mock("@octokit/rest", () => ({
   Octokit: MockOctokit,
 }));
 
-mock.module("./user-token", () => ({
-  getUserGitHubToken: async () => "token-from-mock",
+vi.mock("./user-token", () => ({
+  getUserGitHubToken: async () => "token-from-vi",
 }));
 
 let moduleVersion = 0;

@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, mock, test } from "bun:test";
+import { afterEach, beforeEach, describe, expect, vi, test } from "vitest";
 
 import { listUserInstallationRepositories } from "./repos";
 
@@ -44,7 +44,7 @@ describe("installation-repos", () => {
   });
 
   test("stops paging once it has enough matches to satisfy the limit", async () => {
-    const fetchMock = mock(async (input: RequestInfo | URL) => {
+    const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
       const url = new URL(input.toString());
       const page = url.searchParams.get("page");
 
@@ -82,7 +82,7 @@ describe("installation-repos", () => {
   });
 
   test("continues paging until a query has enough matches", async () => {
-    const fetchMock = mock(async (input: RequestInfo | URL) => {
+    const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
       const url = new URL(input.toString());
       const page = url.searchParams.get("page");
 

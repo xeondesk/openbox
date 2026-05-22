@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, mock, test } from "bun:test";
+import { beforeEach, describe, expect, vi, test } from "vitest";
 
 type AuthSession = { user: { id: string } } | null;
 
@@ -26,11 +26,11 @@ let chatRecord: ChatRecord | null = {
   activeStreamId: null,
 };
 
-mock.module("@/lib/session/get-server-session", () => ({
+vi.mock("@/lib/session/get-server-session", () => ({
   getServerSession: async () => authSession,
 }));
 
-mock.module("@/lib/db/sessions", () => ({
+vi.mock("@/lib/db/sessions", () => ({
   getSessionById: async () => sessionRecord,
   getChatById: async () => chatRecord,
 }));

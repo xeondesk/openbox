@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, mock, test } from "bun:test";
+import { beforeEach, describe, expect, vi, test } from "vitest";
 
 type MockPublicUser = {
   id: string;
@@ -9,11 +9,11 @@ type MockPublicUser = {
   publicUsageEnabled: boolean | null;
 };
 
-const findPublicUsersByUsernameMock = mock(
+const findPublicUsersByUsernameMock = vi.fn(
   async (): Promise<MockPublicUser[]> => [],
 );
-const getUsageHistoryMock = mock(async () => []);
-const getUsageInsightsMock = mock(async () => ({
+const getUsageHistoryMock = vi.fn(async () => []);
+const getUsageInsightsMock = vi.fn(async () => ({
   lookbackDays: 0,
   pr: {
     trackedPrCount: 0,
@@ -38,7 +38,7 @@ const getUsageInsightsMock = mock(async () => ({
   topRepositories: [],
 }));
 
-mock.module("./client", () => ({
+vi.mock("./client", () => ({
   db: {
     select: () => ({
       from: () => ({
@@ -52,11 +52,11 @@ mock.module("./client", () => ({
   },
 }));
 
-mock.module("./usage", () => ({
+vi.mock("./usage", () => ({
   getUsageHistory: getUsageHistoryMock,
 }));
 
-mock.module("./usage-insights", () => ({
+vi.mock("./usage-insights", () => ({
   getUsageInsights: getUsageInsightsMock,
 }));
 

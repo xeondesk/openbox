@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, mock, test } from "bun:test";
+import { afterEach, beforeEach, describe, expect, vi, test } from "vitest";
 
 type RedisOptions = Record<string, unknown>;
 type RedisTransactionResult = [Error | null, unknown];
@@ -18,9 +18,11 @@ const redisState: {
 
 function createMockPipeline() {
   const pipeline = {
-    incr: mock((_key: string) => pipeline),
-    pexpire: mock((_key: string, _windowMs: number, _mode: string) => pipeline),
-    exec: mock(async () => redisState.execResults),
+    incr: vi.fn((_key: string) => pipeline),
+    pexpire: vi.fn(
+      (_key: string, _windowMs: number, _mode: string) => pipeline,
+    ),
+    exec: vi.fn(async () => redisState.execResults),
   };
 
   return pipeline;
@@ -28,10 +30,10 @@ function createMockPipeline() {
 
 class MockRedis {
   options: RedisOptions;
-  on = mock((_event: string, _handler: (error: Error) => void) => this);
-  disconnect = mock(() => undefined);
-  pttl = mock(async (_key: string) => redisState.ttl);
-  multi = mock(() => createMockPipeline());
+  on = vi.fn((_event: string, _handler: (error: Error) => void) => this);
+  disconnect = vi.fn(() => undefined);
+  pttl = vi.fn(async (_key: string) => redisState.ttl);
+  multi = vi.fn(() => createMockPipeline());
 
   constructor(options: RedisOptions) {
     this.options = options;
@@ -39,7 +41,7 @@ class MockRedis {
   }
 }
 
-mock.module("ioredis", () => ({
+vi.mock("ioredis", () => ({
   default: MockRedis,
 }));
 
@@ -140,7 +142,7 @@ describe("checkRateLimit", () => {
 
   test("fails closed when the Redis expiry command fails", async () => {
     const originalConsoleError = console.error;
-    console.error = mock(() => undefined) as unknown as typeof console.error;
+    console.error = vi.fn(() => undefined) as unknown as typeof console.error;
     try {
       process.env.REDIS_URL = "redis://localhost:6379";
       process.env[nodeEnvKey] = "production";
@@ -186,7 +188,7 @@ describe("checkRateLimit", () => {
 
   test("fails closed when the Redis check times out", async () => {
     const originalConsoleError = console.error;
-    console.error = mock(() => undefined) as unknown as typeof console.error;
+    console.error = vi.fn(() => undefined) as unknown as typeof console.error;
     try {
       process.env.REDIS_URL = "redis://localhost:6379";
       process.env.RATE_LIMIT_TIMEOUT_MS = "1";

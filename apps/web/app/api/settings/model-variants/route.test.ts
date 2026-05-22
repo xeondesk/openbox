@@ -1,7 +1,7 @@
-import { beforeEach, describe, expect, mock, test } from "bun:test";
+import { beforeEach, describe, expect, vi, test } from "vitest";
 import type { ModelVariant } from "@/lib/model-variants";
 
-mock.module("server-only", () => ({}));
+vi.mock("server-only", () => ({}));
 
 const PROVIDER_OPTIONS_MAX_BYTES = 16 * 1024;
 
@@ -54,11 +54,11 @@ function createProviderOptionsWithExactSize(
   };
 }
 
-mock.module("@/lib/session/get-server-session", () => ({
+vi.mock("@/lib/session/get-server-session", () => ({
   getServerSession: async () => currentSession,
 }));
 
-mock.module("@/lib/db/user-preferences", () => ({
+vi.mock("@/lib/db/user-preferences", () => ({
   getUserPreferences: async () => preferences,
   updateUserPreferences: async (
     _userId: string,

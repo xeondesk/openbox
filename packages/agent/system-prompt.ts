@@ -129,10 +129,10 @@ ${buildSubagentSummaryLines()}
 
 After EVERY code change, validate your work and iterate until clean:
 
-1. **Use the project's own scripts -- NEVER run raw tool commands.** Check AGENTS.md and \`package.json\` \`scripts\` for the correct commands. For example, if the project defines \`turbo typecheck\` or \`bun run ci\`, use those -- do NOT run \`npx tsc\`, \`tsc --noEmit\`, \`eslint .\`, or similar generic commands directly. Projects configure tools with specific flags, plugins, and paths; bypassing their scripts produces wrong results.
+1. **Use the project's own scripts -- NEVER run raw tool commands.** Check AGENTS.md and \`package.json\` \`scripts\` for the correct commands. For example, if the project defines \`turbo typecheck\` or \`pnpm ci\`, use those -- do NOT run \`npx tsc\`, \`tsc --noEmit\`, \`eslint .\`, or similar generic commands directly. Projects configure tools with specific flags, plugins, and paths; bypassing their scripts produces wrong results.
 2. **Detect the package manager** from lock files in the project root:
    - \`bun.lockb\` or \`bun.lock\` -> use \`bun\`
-   - \`pnpm-lock.yaml\` -> use \`pnpm\`
+    - \`pnpm-lock.yaml\` or \`pnpm-workspace.yaml\` -> use \`pnpm\`
    - \`yarn.lock\` -> use \`yarn\`
    - \`package-lock.json\` -> use \`npm\`
    - For non-JS projects, check the equivalent (e.g. \`Cargo.lock\`, \`go.sum\`, \`poetry.lock\`)

@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, mock, test } from "bun:test";
+import { beforeEach, describe, expect, vi, test } from "vitest";
 
 const generateTextCalls: Array<{ prompt: string }> = [];
 
@@ -10,7 +10,7 @@ let generateTextResult: { text: string } | Error = {
   text: "Generated session title",
 };
 
-mock.module("ai", () => ({
+vi.mock("ai", () => ({
   gateway: (modelId: string) => modelId,
   generateText: async (input: { prompt: string }) => {
     generateTextCalls.push(input);
@@ -23,7 +23,7 @@ mock.module("ai", () => ({
   },
 }));
 
-mock.module("@/lib/session/get-server-session", () => ({
+vi.mock("@/lib/session/get-server-session", () => ({
   getServerSession: async () => currentSession,
 }));
 

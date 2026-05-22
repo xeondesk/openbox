@@ -1,6 +1,6 @@
-import { beforeEach, describe, expect, mock, test } from "bun:test";
+import { beforeEach, describe, expect, vi, test } from "vitest";
 
-mock.module("server-only", () => ({}));
+vi.mock("server-only", () => ({}));
 
 type AuthResult =
   | {
@@ -64,12 +64,12 @@ let readFileImplementation: (
   encoding: "utf-8",
 ) => Promise<string>;
 
-mock.module("@/app/api/sessions/_lib/session-context", () => ({
+vi.mock("@/app/api/sessions/_lib/session-context", () => ({
   requireAuthenticatedUser: async () => authResult,
   requireOwnedSessionWithSandboxGuard: async () => ownedSessionResult,
 }));
 
-mock.module("@open-agents/sandbox", () => ({
+vi.mock("@open-agents/sandbox", () => ({
   connectSandbox: async (sandboxState: TestSandboxState) => {
     if (connectSandboxError) {
       throw connectSandboxError;
@@ -90,17 +90,17 @@ mock.module("@open-agents/sandbox", () => ({
   },
 }));
 
-mock.module("@/lib/db/sessions", () => ({
+vi.mock("@/lib/db/sessions", () => ({
   updateSession: async (sessionId: string, patch: Record<string, unknown>) => {
     updateCalls.push({ sessionId, patch });
   },
 }));
 
-mock.module("@/lib/sandbox/lifecycle", () => ({
+vi.mock("@/lib/sandbox/lifecycle", () => ({
   buildHibernatedLifecycleUpdate: () => ({ lifecycleState: "hibernated" }),
 }));
 
-mock.module("@/lib/sandbox/utils", () => ({
+vi.mock("@/lib/sandbox/utils", () => ({
   clearSandboxState: () => null,
   clearUnavailableSandboxState: () => null,
   hasRuntimeSandboxState: (state: TestSandboxState | null) =>

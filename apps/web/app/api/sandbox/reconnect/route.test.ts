@@ -1,6 +1,6 @@
-import { beforeEach, describe, expect, mock, test } from "bun:test";
+import { beforeEach, describe, expect, vi, test } from "vitest";
 
-mock.module("server-only", () => ({}));
+vi.mock("server-only", () => ({}));
 
 const updateCalls: Array<{
   sessionId: string;
@@ -29,12 +29,12 @@ let sessionRecord: {
   sandboxExpiresAt: Date | null;
 };
 
-mock.module("@/app/api/sessions/_lib/session-context", () => ({
+vi.mock("@/app/api/sessions/_lib/session-context", () => ({
   requireAuthenticatedUser: async () => ({ ok: true, userId: "user-1" }),
   requireOwnedSession: async () => ({ ok: true, sessionRecord }),
 }));
 
-mock.module("@/lib/db/sessions", () => ({
+vi.mock("@/lib/db/sessions", () => ({
   updateSession: async (sessionId: string, patch: Record<string, unknown>) => {
     updateCalls.push({ sessionId, patch });
     sessionRecord = {
@@ -45,7 +45,7 @@ mock.module("@/lib/db/sessions", () => ({
   },
 }));
 
-mock.module("@/lib/sandbox/lifecycle", () => ({
+vi.mock("@/lib/sandbox/lifecycle", () => ({
   buildHibernatedLifecycleUpdate: () => ({
     lifecycleState: "hibernated",
     sandboxExpiresAt: null,
@@ -59,7 +59,7 @@ mock.module("@/lib/sandbox/lifecycle", () => ({
     typeof state?.expiresAt === "number" ? new Date(state.expiresAt) : null,
 }));
 
-mock.module("@open-agents/sandbox", () => ({
+vi.mock("@open-agents/sandbox", () => ({
   connectSandbox: async (state: {
     type: "vercel";
     sandboxName?: string;

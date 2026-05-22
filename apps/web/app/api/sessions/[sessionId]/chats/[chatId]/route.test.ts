@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, mock, test } from "bun:test";
+import { beforeEach, describe, expect, vi, test } from "vitest";
 
 type AuthResult =
   | {
@@ -79,12 +79,12 @@ const updateChatCalls: Array<{
 }> = [];
 const deleteChatCalls: string[] = [];
 
-mock.module("@/app/api/sessions/_lib/session-context", () => ({
+vi.mock("@/app/api/sessions/_lib/session-context", () => ({
   requireAuthenticatedUser: async () => authResult,
   requireOwnedSessionChat: async () => ownedSessionChatResult,
 }));
 
-mock.module("@/lib/db/sessions", () => ({
+vi.mock("@/lib/db/sessions", () => ({
   updateChat: async (
     chatId: string,
     patch: { title?: string; modelId?: string },
@@ -99,7 +99,7 @@ mock.module("@/lib/db/sessions", () => ({
   },
 }));
 
-mock.module("@/lib/db/user-preferences", () => ({
+vi.mock("@/lib/db/user-preferences", () => ({
   getUserPreferences: async () => ({
     defaultModelId: "model-default",
     defaultSubagentModelId: null,
@@ -116,7 +116,7 @@ mock.module("@/lib/db/user-preferences", () => ({
   }),
 }));
 
-mock.module("@/lib/session/get-server-session", () => ({
+vi.mock("@/lib/session/get-server-session", () => ({
   getServerSession: async () => currentSession,
 }));
 

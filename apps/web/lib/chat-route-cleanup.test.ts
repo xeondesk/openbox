@@ -1,17 +1,17 @@
-import { describe, expect, mock, test } from "bun:test";
+import { describe, expect, vi, test } from "vitest";
 
 const spies = {
-  abortChatInstanceTransport: mock((_chatId: string) => {}),
-  removeChatInstance: mock((_chatId: string) => {}),
-  clearChatWorkspaceStatus: mock((_chatId: string) => {}),
+  abortChatInstanceTransport: vi.fn((_chatId: string) => {}),
+  removeChatInstance: vi.fn((_chatId: string) => {}),
+  clearChatWorkspaceStatus: vi.fn((_chatId: string) => {}),
 };
 
-mock.module("@/lib/chat-instance-manager", () => ({
+vi.mock("@/lib/chat-instance-manager", () => ({
   abortChatInstanceTransport: spies.abortChatInstanceTransport,
   removeChatInstance: spies.removeChatInstance,
 }));
 
-mock.module("@/lib/workspace-status-store", () => ({
+vi.mock("@/lib/workspace-status-store", () => ({
   clearChatWorkspaceStatus: spies.clearChatWorkspaceStatus,
 }));
 
@@ -22,13 +22,13 @@ describe("cleanupChatRouteOnUnmount", () => {
     const { cleanupChatRouteOnUnmount } = await cleanupModulePromise;
 
     const calls: string[] = [];
-    const abortTransport = mock((chatId: string) => {
+    const abortTransport = vi.fn((chatId: string) => {
       calls.push(`abort:${chatId}`);
     });
-    const removeInstance = mock((chatId: string) => {
+    const removeInstance = vi.fn((chatId: string) => {
       calls.push(`remove:${chatId}`);
     });
-    const clearWorkspaceStatus = mock((chatId: string) => {
+    const clearWorkspaceStatus = vi.fn((chatId: string) => {
       calls.push(`clear:${chatId}`);
     });
 
@@ -59,9 +59,9 @@ describe("cleanupChatRouteOnUnmount", () => {
   test("never issues a server stop signal during route teardown", async () => {
     const { cleanupChatRouteOnUnmount } = await cleanupModulePromise;
 
-    const abortTransport = mock((_chatId: string) => {});
-    const removeInstance = mock((_chatId: string) => {});
-    const stopStream = mock((_chatId: string) => {});
+    const abortTransport = vi.fn((_chatId: string) => {});
+    const removeInstance = vi.fn((_chatId: string) => {});
+    const stopStream = vi.fn((_chatId: string) => {});
 
     cleanupChatRouteOnUnmount("chat-456", {
       abortTransport,

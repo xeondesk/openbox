@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, mock, test } from "bun:test";
+import { beforeEach, describe, expect, vi, test } from "vitest";
 
 type AuthResult =
   | {
@@ -75,12 +75,12 @@ const forkCalls: Array<{
   };
 }> = [];
 
-mock.module("@/app/api/sessions/_lib/session-context", () => ({
+vi.mock("@/app/api/sessions/_lib/session-context", () => ({
   requireAuthenticatedUser: async () => authResult,
   requireOwnedSessionChat: async () => ownedSessionChatResult,
 }));
 
-mock.module("@/lib/db/sessions", () => ({
+vi.mock("@/lib/db/sessions", () => ({
   getChatById: async (chatId: string) => {
     getChatByIdCalls.push(chatId);
     return existingChat;

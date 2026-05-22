@@ -1,5 +1,5 @@
 {
-  "extends": "@open-agents/tsconfig/bun.json",
+  "extends": "@open-agents/tsconfig/node.json",
   "include": ["./**/*"],
   "exclude": ["node_modules"],
   "compilerOptions": {

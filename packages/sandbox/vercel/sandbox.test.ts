@@ -1,4 +1,4 @@
-import { beforeAll, beforeEach, describe, expect, mock, test } from "bun:test";
+import { beforeAll, beforeEach, describe, expect, test, vi } from "vitest";
 
 const portDomains = new Map<number, string>();
 const missingPorts = new Set<number>();
@@ -131,7 +131,7 @@ function createMockSandboxSdk(name: string) {
   };
 }
 
-mock.module("@vercel/sandbox", () => ({
+vi.mock("@vercel/sandbox", () => ({
   Sandbox: {
     create: async (params: Record<string, unknown>) => {
       createCalls.push(params);
@@ -517,7 +517,7 @@ describe("VercelSandbox.execDetached", () => {
       if (typeof handler === "function") {
         handler();
       }
-      return originalSetTimeout(() => undefined, 0, ...args);
+      return originalSetTimeout(() => undefined, 0, ...(args as []));
     }) as typeof setTimeout;
 
     try {

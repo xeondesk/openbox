@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, mock, test } from "bun:test";
+import { beforeEach, describe, expect, vi, test } from "vitest";
 import type { LanguageModelUsage } from "ai";
 import type { WebAgentUIMessage } from "@/app/types";
 
@@ -27,9 +27,9 @@ function makeAssistantMessage(
 }
 
 const spies = {
-  recordUsage: mock(() => Promise.resolve()),
-  recordWorkflowRun: mock(() => Promise.resolve()),
-  collectTaskToolUsageEvents: mock(
+  recordUsage: vi.fn(() => Promise.resolve()),
+  recordWorkflowRun: vi.fn(() => Promise.resolve()),
+  collectTaskToolUsageEvents: vi.fn(
     (_message?: unknown) =>
       [] as Array<{
         modelId?: string;
@@ -37,7 +37,7 @@ const spies = {
         usage: LanguageModelUsage;
       }>,
   ),
-  sumLanguageModelUsage: mock(
+  sumLanguageModelUsage: vi.fn(
     (a: LanguageModelUsage | undefined, b: LanguageModelUsage) => ({
       inputTokens: (a?.inputTokens ?? 0) + (b?.inputTokens ?? 0),
       outputTokens: (a?.outputTokens ?? 0) + (b?.outputTokens ?? 0),
@@ -45,32 +45,32 @@ const spies = {
   ),
 };
 
-mock.module("@/lib/db/sessions", () => ({
-  claimChatActiveStreamId: mock(() => Promise.resolve(true)),
-  compareAndSetChatActiveStreamId: mock(() => Promise.resolve(true)),
-  createChatMessageIfNotExists: mock(() => Promise.resolve(undefined)),
-  touchChat: mock(() => Promise.resolve()),
-  updateChat: mock(() => Promise.resolve()),
-  updateSession: mock(() => Promise.resolve()),
-  isFirstChatMessage: mock(() => Promise.resolve(false)),
-  upsertChatMessageScoped: mock(() => Promise.resolve({ status: "inserted" })),
-  updateChatAssistantActivity: mock(() => Promise.resolve()),
+vi.mock("@/lib/db/sessions", () => ({
+  claimChatActiveStreamId: vi.fn(() => Promise.resolve(true)),
+  compareAndSetChatActiveStreamId: vi.fn(() => Promise.resolve(true)),
+  createChatMessageIfNotExists: vi.fn(() => Promise.resolve(undefined)),
+  touchChat: vi.fn(() => Promise.resolve()),
+  updateChat: vi.fn(() => Promise.resolve()),
+  updateSession: vi.fn(() => Promise.resolve()),
+  isFirstChatMessage: vi.fn(() => Promise.resolve(false)),
+  upsertChatMessageScoped: vi.fn(() => Promise.resolve({ status: "inserted" })),
+  updateChatAssistantActivity: vi.fn(() => Promise.resolve()),
 }));
 
-mock.module("@/lib/sandbox/lifecycle", () => ({
-  buildActiveLifecycleUpdate: mock(() => ({})),
-  buildLifecycleActivityUpdate: mock(() => ({})),
+vi.mock("@/lib/sandbox/lifecycle", () => ({
+  buildActiveLifecycleUpdate: vi.fn(() => ({})),
+  buildLifecycleActivityUpdate: vi.fn(() => ({})),
 }));
 
-mock.module("@/lib/db/usage", () => ({
+vi.mock("@/lib/db/usage", () => ({
   recordUsage: spies.recordUsage,
 }));
 
-mock.module("@/lib/db/workflow-runs", () => ({
+vi.mock("@/lib/db/workflow-runs", () => ({
   recordWorkflowRun: spies.recordWorkflowRun,
 }));
 
-mock.module("@open-agents/agent", () => ({
+vi.mock("@open-agents/agent", () => ({
   collectTaskToolUsageEvents: spies.collectTaskToolUsageEvents,
   sumLanguageModelUsage: spies.sumLanguageModelUsage,
 }));

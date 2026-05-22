@@ -1,9 +1,9 @@
-import { describe, expect, mock, test } from "bun:test";
+import { describe, expect, vi, test } from "vitest";
 import type { ProviderOptionsByProvider } from "./models";
 
 const createGatewayCalls: Array<Record<string, unknown>> = [];
 
-mock.module("ai", () => {
+vi.mock("ai", () => {
   const gateway = (modelId: string) => ({ modelId });
 
   return {
@@ -19,7 +19,7 @@ mock.module("ai", () => {
   };
 });
 
-mock.module("@ai-sdk/devtools", () => ({
+vi.mock("@ai-sdk/devtools", () => ({
   devToolsMiddleware: () => ({ kind: "devtools-middleware" }),
 }));
 
