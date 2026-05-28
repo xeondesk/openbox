@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "pnpm db:migrate:apply && next build",
+    "build": "sh -c 'pnpm db:migrate:apply && next build'",
     "db:migrate:apply": "pnpm tsx lib/db/migrate.ts",
     "start": "next start",
     "typecheck": "tsc --noEmit",
