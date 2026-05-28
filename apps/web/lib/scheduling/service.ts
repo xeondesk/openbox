@@ -1,6 +1,6 @@
 /**
  * Scheduled Agent Runs Service
- * 
+ *
  * Manages recurring agent executions for automated tasks like
  * dependency updates, testing, code reviews, and maintenance.
  */
@@ -92,9 +92,9 @@ const ScheduledRunSchema = z.object({
  */
 export class ScheduledRunsManager {
   private config: SchedulingConfig;
-  private scheduledRuns: Map<string, ScheduledRun> = new Map();
-  private executions: Map<string, ScheduledRunExecution[]> = new Map();
-  private timers: Map<string, ReturnType<typeof setTimeout>> = new Map();
+  private scheduledRuns = new Map<string, ScheduledRun>();
+  private executions = new Map<string, ScheduledRunExecution[]>();
+  private timers = new Map<string, ReturnType<typeof setTimeout>>();
 
   constructor(config: Partial<SchedulingConfig> = {}) {
     this.config = {
@@ -109,7 +109,7 @@ export class ScheduledRunsManager {
    */
   async createSchedule(
     sessionId: string,
-    data: z.infer<typeof ScheduledRunSchema>
+    data: z.infer<typeof ScheduledRunSchema>,
   ): Promise<ScheduledRun> {
     const validated = ScheduledRunSchema.parse(data);
 
@@ -147,7 +147,7 @@ export class ScheduledRunsManager {
    */
   getSessionSchedules(sessionId: string): ScheduledRun[] {
     return Array.from(this.scheduledRuns.values()).filter(
-      (s) => s.sessionId === sessionId
+      (s) => s.sessionId === sessionId,
     );
   }
 
@@ -156,7 +156,7 @@ export class ScheduledRunsManager {
    */
   async updateSchedule(
     scheduleId: string,
-    data: Partial<z.infer<typeof ScheduledRunSchema>>
+    data: Partial<z.infer<typeof ScheduledRunSchema>>,
   ): Promise<ScheduledRun> {
     const schedule = this.scheduledRuns.get(scheduleId);
     if (!schedule) {
@@ -228,10 +228,10 @@ export class ScheduledRunsManager {
    */
   getExecutionHistory(
     scheduleId: string,
-    limit: number = 50
+    limit: number = 50,
   ): ScheduledRunExecution[] {
     const executions = this.executions.get(scheduleId) || [];
-    return executions.slice(-limit).reverse();
+    return executions.slice(-limit).toReversed();
   }
 
   /**
@@ -262,9 +262,7 @@ export class ScheduledRunsManager {
           ? durations.reduce((a, b) => a + b, 0) / durations.length
           : 0,
       successRate:
-        completed.length > 0
-          ? (successCount / completed.length) * 100
-          : 0,
+        completed.length > 0 ? (successCount / completed.length) * 100 : 0,
     };
   }
 
@@ -338,7 +336,7 @@ export class ScheduledRunsManager {
    */
   private async executeScheduledRun(
     schedule: ScheduledRun,
-    execution: ScheduledRunExecution
+    execution: ScheduledRunExecution,
   ): Promise<void> {
     execution.status = "running";
     const startTime = Date.now();
@@ -359,7 +357,10 @@ export class ScheduledRunsManager {
 
       // Update last run status in schedule
       schedule.lastRun = execution.startTime;
-      schedule.lastStatus = execution.status as "success" | "failure" | "skipped";
+      schedule.lastStatus = execution.status as
+        | "success"
+        | "failure"
+        | "skipped";
 
       // Send notification if configured
       if (schedule.notifications) {
@@ -373,7 +374,7 @@ export class ScheduledRunsManager {
    */
   private sendNotification(
     schedule: ScheduledRun,
-    execution: ScheduledRunExecution
+    execution: ScheduledRunExecution,
   ): void {
     const shouldNotify =
       (execution.status === "success" && schedule.notifications?.onSuccess) ||
@@ -383,11 +384,14 @@ export class ScheduledRunsManager {
 
     if (schedule.notifications?.webhookUrl) {
       // Send webhook notification
-      console.log(`[v0] Sending webhook to ${schedule.notifications.webhookUrl}`, {
-        scheduleName: schedule.name,
-        status: execution.status,
-        duration: execution.duration,
-      });
+      console.log(
+        `[v0] Sending webhook to ${schedule.notifications.webhookUrl}`,
+        {
+          scheduleName: schedule.name,
+          status: execution.status,
+          duration: execution.duration,
+        },
+      );
     }
   }
 

@@ -55,7 +55,9 @@ export function WorkflowMetricsChart({ data }: WorkflowMetricsChartProps) {
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="date" />
               <YAxis />
-              <Tooltip formatter={(value) => `${(Number(value) / 1000).toFixed(2)}s`} />
+              <Tooltip
+                formatter={(value) => `${(Number(value) / 1000).toFixed(2)}s`}
+              />
               <Line
                 type="monotone"
                 dataKey="avgTime"

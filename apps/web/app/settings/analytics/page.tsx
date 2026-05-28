@@ -28,11 +28,11 @@ export default async function AnalyticsPage() {
   // Fetch analytics data
   const now = new Date();
   const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-  
+
   const [
     analyticsData,
-    workflowSuccessRates,
-    executionTimes,
+    _workflowSuccessRates,
+    _executionTimes,
     apiMetrics,
     costTrends,
     executionDistribution,
@@ -90,7 +90,9 @@ export default async function AnalyticsPage() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Analytics Dashboard</h1>
+        <h1 className="text-3xl font-bold tracking-tight">
+          Analytics Dashboard
+        </h1>
         <p className="mt-2 text-muted-foreground">
           Monitor your agent workflows, API performance, and costs
         </p>
@@ -121,7 +123,9 @@ export default async function AnalyticsPage() {
       <div className="grid gap-6 lg:grid-cols-2">
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">Model Usage Distribution</CardTitle>
+            <CardTitle className="text-base">
+              Model Usage Distribution
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <ModelUsageChart data={modelUsage} />
@@ -193,7 +197,9 @@ export default async function AnalyticsPage() {
             </div>
             <div>
               <p className="text-sm text-muted-foreground">Utilization Rate</p>
-              <p className="text-2xl font-bold">{sandboxStats.utilizationRate}%</p>
+              <p className="text-2xl font-bold">
+                {sandboxStats.utilizationRate}%
+              </p>
             </div>
           </CardContent>
         </Card>
@@ -207,7 +213,10 @@ export default async function AnalyticsPage() {
         <CardContent>
           <div className="space-y-4">
             {topErrors.map((error) => (
-              <div key={error.error} className="flex items-center justify-between border-b pb-4 last:border-0">
+              <div
+                key={error.error}
+                className="flex items-center justify-between border-b pb-4 last:border-0"
+              >
                 <div className="flex-1">
                   <p className="font-medium">{error.error}</p>
                   <p className="text-sm text-muted-foreground">

@@ -1,6 +1,6 @@
 /**
  * Metrics collection and reporting system
- * 
+ *
  * Collects performance metrics, workflow execution data, and usage analytics.
  */
 
@@ -45,13 +45,13 @@ export interface SandboxMetric {
  */
 export function recordMetric(metric: MetricData) {
   if (!metricsConfig.enabled) return;
-  
+
   try {
     Sentry.captureMessage(
       `Metric: ${metric.name} = ${metric.value}${metric.unit ? ` ${metric.unit}` : ""}`,
-      "info"
+      "info",
     );
-    
+
     // Also send as gauge in Sentry
     Sentry.metrics.gauge(metric.name, metric.value, {
       unit: metric.unit || "none",
@@ -66,13 +66,14 @@ export function recordMetric(metric: MetricData) {
  * Record workflow execution metrics
  */
 export function recordWorkflowMetric(metric: WorkflowMetric) {
-  if (!metricsConfig.enabled || !metricsConfig.tracked.workflowExecutionTime) return;
-  
+  if (!metricsConfig.enabled || !metricsConfig.tracked.workflowExecutionTime)
+    return;
+
   const tags = {
     workflowId: metric.workflowId,
     status: metric.status,
   };
-  
+
   // Record execution time
   recordMetric({
     name: "workflow_execution_time",
@@ -80,14 +81,14 @@ export function recordWorkflowMetric(metric: WorkflowMetric) {
     unit: "milliseconds",
     tags,
   });
-  
+
   // Record steps completed
   recordMetric({
     name: "workflow_steps_completed",
     value: metric.stepsCompleted,
     tags,
   });
-  
+
   // Record success/failure
   if (metric.status === "success") {
     recordMetric({
@@ -109,25 +110,25 @@ export function recordWorkflowMetric(metric: WorkflowMetric) {
  */
 export function recordChatMetric(metric: ChatMetric) {
   if (!metricsConfig.enabled || !metricsConfig.tracked.chatMessages) return;
-  
+
   const tags = {
     sessionId: metric.sessionId,
     model: metric.modelUsed,
   };
-  
+
   recordMetric({
     name: "chat_messages",
     value: metric.messageCount,
     tags,
   });
-  
+
   recordMetric({
     name: "chat_latency",
     value: metric.averageLatency,
     unit: "milliseconds",
     tags,
   });
-  
+
   recordMetric({
     name: "chat_tokens",
     value: metric.tokenUsage,
@@ -140,26 +141,26 @@ export function recordChatMetric(metric: ChatMetric) {
  */
 export function recordSandboxMetric(metric: SandboxMetric) {
   if (!metricsConfig.enabled || !metricsConfig.tracked.sandboxExecution) return;
-  
+
   const tags = {
     sandboxId: metric.sandboxId,
     status: metric.status,
   };
-  
+
   recordMetric({
     name: "sandbox_creation_time",
     value: metric.creationTime,
     unit: "milliseconds",
     tags,
   });
-  
+
   recordMetric({
     name: "sandbox_execution_time",
     value: metric.executionTime,
     unit: "milliseconds",
     tags,
   });
-  
+
   recordMetric({
     name: "sandbox_commands_executed",
     value: metric.commandsExecuted,
@@ -173,15 +174,15 @@ export function recordSandboxMetric(metric: SandboxMetric) {
 export function recordApiMetric(
   endpoint: string,
   responseTime: number,
-  statusCode: number
+  statusCode: number,
 ) {
   if (!metricsConfig.enabled || !metricsConfig.tracked.apiResponseTime) return;
-  
+
   const tags = {
     endpoint,
     statusCode: String(statusCode),
   };
-  
+
   recordMetric({
     name: "api_response_time",
     value: responseTime,
@@ -196,10 +197,10 @@ export function recordApiMetric(
 export function recordUserAction(
   action: string,
   sessionId: string,
-  metadata?: Record<string, unknown>
+  metadata?: Record<string, unknown>,
 ) {
   if (!metricsConfig.enabled || !metricsConfig.tracked.userActions) return;
-  
+
   Sentry.captureMessage(`User action: ${action}`, {
     level: "info",
     tags: {
@@ -218,10 +219,11 @@ export function createSpan(operation: string, name?: string) {
     op: operation,
     name: name || operation,
   });
-  
+
   return {
     end: () => span.end(),
-    setAttribute: (key: string, value: unknown) => span.setAttribute(key, value as never),
+    setAttribute: (key: string, value: unknown) =>
+      span.setAttribute(key, value as never),
   };
 }
 
@@ -230,7 +232,7 @@ export function createSpan(operation: string, name?: string) {
  */
 export function recordError(
   error: Error | unknown,
-  context: Record<string, unknown> = {}
+  context: Record<string, unknown> = {},
 ) {
   Sentry.captureException(error, {
     extra: context,
@@ -240,7 +242,11 @@ export function recordError(
 /**
  * Set user context for Sentry
  */
-export function setUserContext(userId: string, email?: string, username?: string) {
+export function setUserContext(
+  userId: string,
+  email?: string,
+  username?: string,
+) {
   Sentry.setUser({
     id: userId,
     email,

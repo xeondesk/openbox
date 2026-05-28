@@ -29,7 +29,12 @@ export function ApiMetricsChart({ data }: ApiMetricsChartProps) {
           <ResponsiveContainer width="100%" height={300}>
             <BarChart data={data}>
               <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="endpoint" angle={-45} textAnchor="end" height={80} />
+              <XAxis
+                dataKey="endpoint"
+                angle={-45}
+                textAnchor="end"
+                height={80}
+              />
               <YAxis />
               <Tooltip formatter={(value) => `${value}ms`} />
               <Bar dataKey="averageTime" fill="#3b82f6" name="Avg Time (ms)" />
@@ -46,7 +51,12 @@ export function ApiMetricsChart({ data }: ApiMetricsChartProps) {
           <ResponsiveContainer width="100%" height={300}>
             <LineChart data={data}>
               <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="endpoint" angle={-45} textAnchor="end" height={80} />
+              <XAxis
+                dataKey="endpoint"
+                angle={-45}
+                textAnchor="end"
+                height={80}
+              />
               <YAxis />
               <Tooltip formatter={(value) => `${value}ms`} />
               <Line
@@ -73,7 +83,10 @@ export function ApiMetricsChart({ data }: ApiMetricsChartProps) {
         <CardContent>
           <div className="space-y-4">
             {data.map((endpoint) => (
-              <div key={endpoint.endpoint} className="flex items-center justify-between">
+              <div
+                key={endpoint.endpoint}
+                className="flex items-center justify-between"
+              >
                 <div className="flex-1">
                   <p className="text-sm font-medium">{endpoint.endpoint}</p>
                   <div className="mt-1 h-2 w-full bg-secondary rounded-full overflow-hidden">

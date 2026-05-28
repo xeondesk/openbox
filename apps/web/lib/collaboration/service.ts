@@ -1,6 +1,6 @@
 /**
  * Real-time collaboration service for multi-user editing and presence
- * 
+ *
  * Handles presence tracking, cursor synchronization, and collaborative editing
  * for sessions with multiple users.
  */
@@ -68,14 +68,14 @@ export class CollaborationService {
 
         this.socket.on("connect", () => {
           console.log("[v0] Collaboration socket connected");
-          
+
           // Join session
           this.socket!.emit("join-session", {
             sessionId: this.sessionId,
             userId: this.userId,
             userName: this.userName,
           });
-          
+
           // Start presence updates
           this.startPresenceUpdates();
           resolve();
@@ -104,7 +104,7 @@ export class CollaborationService {
         // Connection timeout
         const timeout = setTimeout(
           () => reject(new Error("Collaboration connection timeout")),
-          10000
+          10000,
         );
 
         const originalOn = this.socket.on.bind(this.socket);
@@ -145,7 +145,9 @@ export class CollaborationService {
   /**
    * Send an edit operation
    */
-  sendEditOperation(operation: Omit<EditOperation, "id" | "userId" | "timestamp">): void {
+  sendEditOperation(
+    operation: Omit<EditOperation, "id" | "userId" | "timestamp">,
+  ): void {
     if (!this.socket) return;
 
     const op: EditOperation = {
@@ -164,7 +166,7 @@ export class CollaborationService {
    */
   sendComment(
     content: string,
-    position?: { line: number; column: number }
+    position?: { line: number; column: number },
   ): void {
     if (!this.socket) return;
 

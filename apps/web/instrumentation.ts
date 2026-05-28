@@ -1,6 +1,6 @@
 /**
  * Sentry instrumentation for Next.js
- * 
+ *
  * Initializes error tracking and performance monitoring for the application.
  * This file is automatically loaded by Next.js via the instrumentation hook.
  */

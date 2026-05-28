@@ -52,10 +52,13 @@ export async function signOut(): Promise<void> {
         error instanceof Error ? error.message : "Unknown error",
       );
     }
-    
+
     // Log logout event
     const headersList = await headers();
-    const ipAddress = headersList.get("x-forwarded-for") || headersList.get("x-real-ip") || undefined;
+    const ipAddress =
+      headersList.get("x-forwarded-for") ||
+      headersList.get("x-real-ip") ||
+      undefined;
     const userAgent = headersList.get("user-agent") || undefined;
     await logAuthEvent("LOGOUT", session.user.id, ipAddress, userAgent);
   }

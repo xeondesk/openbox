@@ -58,7 +58,9 @@ export function CostTrendsChart({ data }: CostTrendsChartProps) {
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis dataKey="label" />
             <YAxis />
-            <Tooltip formatter={(value) => `$${(value as number).toFixed(2)}`} />
+            <Tooltip
+              formatter={(value) => `$${(value as number).toFixed(2)}`}
+            />
             <Area
               type="monotone"
               dataKey="value"

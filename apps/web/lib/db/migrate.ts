@@ -164,7 +164,9 @@ async function main() {
   console.log("Migrations applied successfully");
 }
 
-main().catch((error) => {
-  console.error("Migration failed:", error);
-  process.exit(1);
-}).finally(() => client.end());
+main()
+  .catch((error) => {
+    console.error("Migration failed:", error);
+    process.exit(1);
+  })
+  .finally(() => client.end());
