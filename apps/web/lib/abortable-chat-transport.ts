@@ -58,21 +58,16 @@ export class AbortableChatTransport<
     const state = { controller: new AbortController() };
     const outerFetch: FetchFunction = options?.fetch ?? globalThis.fetch;
 
-    const fetchWithAbort: FetchFunction = Object.assign(
-      (
-        input: Parameters<FetchFunction>[0],
-        init?: Parameters<FetchFunction>[1],
-      ) =>
-        outerFetch(input, {
-          ...init,
-          signal: init?.signal
-            ? AbortSignal.any([state.controller.signal, init.signal])
-            : state.controller.signal,
-        }),
-      {
-        preconnect: outerFetch.preconnect,
-      },
-    );
+    const fetchWithAbort: FetchFunction = (
+      input: Parameters<FetchFunction>[0],
+      init?: Parameters<FetchFunction>[1],
+    ) =>
+      outerFetch(input, {
+        ...init,
+        signal: init?.signal
+          ? AbortSignal.any([state.controller.signal, init.signal])
+          : state.controller.signal,
+      });
 
     super({
       ...options,

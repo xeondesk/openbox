@@ -60,7 +60,8 @@ export async function logAuditEvent(
 
   // Also log to Sentry for persistence
   const eventName = auditConfig.trackableEvents[eventType];
-  Sentry.captureMessage(`Audit: ${eventName}`, "info", {
+  Sentry.captureMessage(`Audit: ${eventName}`, {
+    level: "info",
     extra: {
       userId,
       ...metadata,

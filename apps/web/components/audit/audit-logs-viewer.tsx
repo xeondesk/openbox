@@ -37,10 +37,9 @@ interface AuditLog {
 
 interface AuditLogsViewerProps {
   logs: AuditLog[];
-  onExport?: () => void;
 }
 
-export function AuditLogsViewer({ logs, onExport }: AuditLogsViewerProps) {
+export function AuditLogsViewer({ logs }: AuditLogsViewerProps) {
   const [selectedEventType, setSelectedEventType] = useState<string | null>(null);
   const [selectedUser, setSelectedUser] = useState<string | null>(null);
 
@@ -88,7 +87,16 @@ export function AuditLogsViewer({ logs, onExport }: AuditLogsViewerProps) {
           <Button
             variant="outline"
             size="sm"
-            onClick={onExport}
+            onClick={() => {
+              const json = JSON.stringify(logs, null, 2);
+              const blob = new Blob([json], { type: "application/json" });
+              const url = URL.createObjectURL(blob);
+              const a = document.createElement("a");
+              a.href = url;
+              a.download = `audit-logs-${new Date().toISOString().split("T")[0]}.json`;
+              a.click();
+              URL.revokeObjectURL(url);
+            }}
             className="gap-2"
           >
             <Download className="h-4 w-4" />

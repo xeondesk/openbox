@@ -1,7 +1,7 @@
 import type { NextConfig } from "next";
 import { withBotId } from "botid/next/config";
 import { withWorkflow } from "workflow/next";
-import { withSentryConfig } from "@sentry/nextjs/config";
+import { withSentryConfig } from "@sentry/nextjs";
 
 const nextConfig: NextConfig = {
   images: {

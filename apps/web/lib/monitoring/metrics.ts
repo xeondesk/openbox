@@ -15,7 +15,7 @@ interface MetricData {
   timestamp?: Date;
 }
 
-interface WorkflowMetric {
+export interface WorkflowMetric {
   workflowId: string;
   executionTime: number;
   status: "success" | "failure" | "timeout";
@@ -24,7 +24,7 @@ interface WorkflowMetric {
   totalSteps: number;
 }
 
-interface ChatMetric {
+export interface ChatMetric {
   sessionId: string;
   messageCount: number;
   averageLatency: number;
@@ -32,7 +32,7 @@ interface ChatMetric {
   modelUsed: string;
 }
 
-interface SandboxMetric {
+export interface SandboxMetric {
   sandboxId: string;
   creationTime: number;
   executionTime: number;
@@ -55,7 +55,7 @@ export function recordMetric(metric: MetricData) {
     // Also send as gauge in Sentry
     Sentry.metrics.gauge(metric.name, metric.value, {
       unit: metric.unit || "none",
-      tags: metric.tags || {},
+      attributes: metric.tags || {},
     });
   } catch (error) {
     console.error("[v0] Failed to record metric:", error);
@@ -200,7 +200,8 @@ export function recordUserAction(
 ) {
   if (!metricsConfig.enabled || !metricsConfig.tracked.userActions) return;
   
-  Sentry.captureMessage(`User action: ${action}`, "info", {
+  Sentry.captureMessage(`User action: ${action}`, {
+    level: "info",
     tags: {
       action,
       sessionId,
@@ -212,16 +213,15 @@ export function recordUserAction(
 /**
  * Create a performance span for tracking
  */
-export function createSpan(operation: string, description?: string) {
-  const span = Sentry.startSpan({
+export function createSpan(operation: string, name?: string) {
+  const span = Sentry.startInactiveSpan({
     op: operation,
-    description: description || operation,
+    name: name || operation,
   });
   
   return {
     end: () => span.end(),
-    setTag: (key: string, value: string) => span.setTag(key, value),
-    setAttribute: (key: string, value: unknown) => span.setAttribute(key, value),
+    setAttribute: (key: string, value: unknown) => span.setAttribute(key, value as never),
   };
 }
 

@@ -94,7 +94,7 @@ export class ScheduledRunsManager {
   private config: SchedulingConfig;
   private scheduledRuns: Map<string, ScheduledRun> = new Map();
   private executions: Map<string, ScheduledRunExecution[]> = new Map();
-  private timers: Map<string, NodeJS.Timer> = new Map();
+  private timers: Map<string, ReturnType<typeof setTimeout>> = new Map();
 
   constructor(config: Partial<SchedulingConfig> = {}) {
     this.config = {
@@ -359,7 +359,7 @@ export class ScheduledRunsManager {
 
       // Update last run status in schedule
       schedule.lastRun = execution.startTime;
-      schedule.lastStatus = execution.status;
+      schedule.lastStatus = execution.status as "success" | "failure" | "skipped";
 
       // Send notification if configured
       if (schedule.notifications) {

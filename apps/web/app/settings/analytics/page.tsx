@@ -4,6 +4,8 @@ import { AnalyticsOverview } from "@/components/analytics/analytics-overview";
 import { WorkflowMetricsChart } from "@/components/analytics/workflow-metrics-chart";
 import { ApiMetricsChart } from "@/components/analytics/api-metrics-chart";
 import { CostTrendsChart } from "@/components/analytics/cost-trends-chart";
+import { ModelUsageChart } from "@/components/analytics/model-usage-chart";
+import { ExecutionDistributionChart } from "@/components/analytics/execution-distribution-chart";
 import {
   getAnalytics,
   getWorkflowSuccessRates,
@@ -16,33 +18,11 @@ import {
   getUserActivityMetrics,
   getSandboxStats,
 } from "@/lib/analytics/service";
-import {
-  BarChart,
-  Bar,
-  PieChart,
-  Pie,
-  Cell,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
-} from "recharts";
 
 export const metadata: Metadata = {
   title: "Analytics",
   description: "View detailed analytics and metrics for your agent workflows",
 };
-
-const COLORS = [
-  "#3b82f6",
-  "#10b981",
-  "#f59e0b",
-  "#ef4444",
-  "#8b5cf6",
-  "#ec4899",
-];
 
 export default async function AnalyticsPage() {
   // Fetch analytics data
@@ -144,28 +124,7 @@ export default async function AnalyticsPage() {
             <CardTitle className="text-base">Model Usage Distribution</CardTitle>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
-              <PieChart>
-                <Pie
-                  data={modelUsage}
-                  cx="50%"
-                  cy="50%"
-                  labelLine={false}
-                  label={({ name, percentage }) => `${name} ${percentage}%`}
-                  outerRadius={100}
-                  fill="#8884d8"
-                  dataKey="usage"
-                >
-                  {modelUsage.map((entry, index) => (
-                    <Cell
-                      key={`cell-${index}`}
-                      fill={COLORS[index % COLORS.length]}
-                    />
-                  ))}
-                </Pie>
-                <Tooltip formatter={(value) => `${value} runs`} />
-              </PieChart>
-            </ResponsiveContainer>
+            <ModelUsageChart data={modelUsage} />
           </CardContent>
         </Card>
 
@@ -176,15 +135,7 @@ export default async function AnalyticsPage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={executionDistribution}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="range" />
-                <YAxis />
-                <Tooltip />
-                <Bar dataKey="count" fill="#10b981" />
-              </BarChart>
-            </ResponsiveContainer>
+            <ExecutionDistributionChart data={executionDistribution} />
           </CardContent>
         </Card>
       </div>

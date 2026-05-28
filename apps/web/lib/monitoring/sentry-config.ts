@@ -5,9 +5,11 @@
  * performance issues, and collecting metrics for the Open Agents platform.
  */
 
-import type { Init } from "@sentry/nextjs";
+import { init } from "@sentry/nextjs";
 
-export const sentryConfig: Init = {
+type SentryInitOptions = Parameters<typeof init>[0];
+
+export const sentryConfig: SentryInitOptions = {
   // Environment configuration
   environment: process.env.NODE_ENV,
   

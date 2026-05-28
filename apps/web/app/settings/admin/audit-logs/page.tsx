@@ -1,6 +1,6 @@
 import { Metadata } from "next";
 import { AuditLogsViewer } from "@/components/audit/audit-logs-viewer";
-import { getAuditLogs, exportAuditLogs } from "@/lib/monitoring/audit-logger";
+import { getAuditLogs } from "@/lib/monitoring/audit-logger";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { AlertCircle, CheckCircle, Clock, Users } from "lucide-react";
 
@@ -35,17 +35,6 @@ export default async function AuditLogsPage() {
     ...log,
     timestamp: new Date(log.timestamp),
   }));
-
-  const handleExport = async () => {
-    const json = exportAuditLogs();
-    const blob = new Blob([json], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `audit-logs-${new Date().toISOString().split("T")[0]}.json`;
-    a.click();
-    URL.revokeObjectURL(url);
-  };
 
   return (
     <div className="space-y-8">
@@ -138,7 +127,7 @@ export default async function AuditLogsPage() {
       </Card>
 
       {/* Audit Logs Viewer */}
-      <AuditLogsViewer logs={convertedLogs} onExport={handleExport} />
+      <AuditLogsViewer logs={convertedLogs} />
     </div>
   );
 }

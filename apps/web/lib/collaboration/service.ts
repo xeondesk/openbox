@@ -44,7 +44,7 @@ export class CollaborationService {
   private operationHistory: EditOperation[] = [];
   private onPresenceChange: ((presence: UserPresence[]) => void) | null = null;
   private onEditOperation: ((operation: EditOperation) => void) | null = null;
-  private presenceInterval: NodeJS.Timer | null = null;
+  private presenceInterval: ReturnType<typeof setInterval> | null = null;
 
   constructor(sessionId: string, userId: string, userName: string) {
     this.sessionId = sessionId;

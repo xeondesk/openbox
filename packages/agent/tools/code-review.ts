@@ -54,7 +54,7 @@ export interface PerformanceAnalysis {
 export const codeReviewTool = tool({
   description:
     "Review code for quality, security, performance, and best practices using AI analysis",
-  parameters: z.object({
+  inputSchema: z.object({
     code: z
       .string()
       .describe("The code to review"),

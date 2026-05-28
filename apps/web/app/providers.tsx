@@ -76,7 +76,8 @@ export function Providers({ children }: { children: React.ReactNode }) {
     applyThemePreference(initialTheme);
     
     // Initialize Sentry user context
-    authClient.getSession().then((session) => {
+    authClient.getSession().then((res) => {
+      const session = res.data;
       if (session?.user) {
         setUserContext(session.user.id, session.user.email, session.user.name || undefined);
       } else {

@@ -5,7 +5,8 @@
   "type": "module",
   "main": "./index.ts",
   "exports": {
-    ".": "./index.ts"
+    ".": "./index.ts",
+    "./tools/code-review": "./tools/code-review.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit"

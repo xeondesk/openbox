@@ -335,13 +335,4 @@ function calculateStats(executions: ScheduledRunExecution[]): {
   };
 }
 
-interface ScheduledRunExecution {
-  id: string;
-  scheduledRunId: string;
-  startTime: Date;
-  endTime?: Date;
-  status: "pending" | "running" | "success" | "failure" | "skipped";
-  output?: string;
-  errorMessage?: string;
-  duration?: number;
-}
+

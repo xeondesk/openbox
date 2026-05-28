@@ -55,7 +55,6 @@ export function withMetrics(
  */
 export interface ApiMetricsContext {
   recordMetric: (name: string, value: number, tags?: Record<string, string>) => void;
-  setTag: (key: string, value: string) => void;
   setAttribute: (key: string, value: unknown) => void;
   recordError: (error: Error | unknown) => void;
 }
@@ -68,10 +67,7 @@ export function createApiMetricsContext(request: NextRequest): ApiMetricsContext
 
   return {
     recordMetric: (name: string, value: number, tags?: Record<string, string>) => {
-      Sentry.metrics.gauge(name, value, { tags: tags || {} });
-    },
-    setTag: (key: string, value: string) => {
-      span.setTag(key, value);
+      Sentry.metrics.gauge(name, value, { attributes: tags || {} });
     },
     setAttribute: (key: string, value: unknown) => {
       span.setAttribute(key, value);

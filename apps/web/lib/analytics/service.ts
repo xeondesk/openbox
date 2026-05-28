@@ -12,7 +12,7 @@ interface TimeRange {
   end: Date;
 }
 
-interface AnalyticsData {
+export interface AnalyticsData {
   totalWorkflows: number;
   successfulWorkflows: number;
   failedWorkflows: number;
@@ -26,7 +26,7 @@ interface AnalyticsData {
   totalCostThisPeriod: number;
 }
 
-interface TimeSeriesData {
+export interface TimeSeriesData {
   timestamp: Date;
   value: number;
   label: string;
@@ -38,7 +38,7 @@ interface WorkflowSuccessRate {
   count: number;
 }
 
-interface ApiResponseTimes {
+export interface ApiResponseTimes {
   endpoint: string;
   averageTime: number;
   p95: number;
