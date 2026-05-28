@@ -1,27 +1,15 @@
 "use client";
 
-import type { SkillMetadata } from "@/lib/skills/marketplace";
 import {
-  categoryColors,
-  categoryDescriptions,
   type SkillCategory,
+  type SkillMetadata,
+  categoryColors,
 } from "@/lib/skills/marketplace";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Star,
-  Download,
-  Search,
-  Filter,
-  Grid,
-  List,
-  Eye,
-  Plus,
-  ExternalLink,
-} from "lucide-react";
+import { Star, Download, Search, Grid, List, Eye, Plus } from "lucide-react";
 import { useState } from "react";
-import Image from "next/image";
 
 interface SkillsMarketplaceProps {
   skills: SkillMetadata[];
@@ -42,9 +30,11 @@ export function SkillsMarketplace({
 }: SkillsMarketplaceProps) {
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState<SkillCategory | "all">("all");
+  const [selectedCategory, setSelectedCategory] = useState<
+    SkillCategory | "all"
+  >("all");
   const [sortBy, setSortBy] = useState<"rating" | "downloads" | "recent">(
-    "rating"
+    "rating",
   );
 
   const categories: (SkillCategory | "all")[] = [
@@ -62,7 +52,7 @@ export function SkillsMarketplace({
       skill.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       skill.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
       skill.tags.some((t) =>
-        t.toLowerCase().includes(searchQuery.toLowerCase())
+        t.toLowerCase().includes(searchQuery.toLowerCase()),
       );
 
     const matchesCategory =
@@ -119,6 +109,7 @@ export function SkillsMarketplace({
 
           <div className="flex gap-1 border border-input rounded-lg p-1">
             <button
+              type="button"
               onClick={() => setViewMode("grid")}
               className={`p-2 rounded ${
                 viewMode === "grid"
@@ -129,6 +120,7 @@ export function SkillsMarketplace({
               <Grid className="h-4 w-4" />
             </button>
             <button
+              type="button"
               onClick={() => setViewMode("list")}
               className={`p-2 rounded ${
                 viewMode === "list"
@@ -145,6 +137,7 @@ export function SkillsMarketplace({
         <div className="flex flex-wrap gap-2">
           {categories.map((cat) => (
             <button
+              type="button"
               key={cat}
               onClick={() => setSelectedCategory(cat)}
               className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
@@ -153,7 +146,9 @@ export function SkillsMarketplace({
                   : "bg-muted hover:bg-muted/80"
               }`}
             >
-              {cat === "all" ? "All" : cat.charAt(0).toUpperCase() + cat.slice(1)}
+              {cat === "all"
+                ? "All"
+                : cat.charAt(0).toUpperCase() + cat.slice(1)}
             </button>
           ))}
         </div>
@@ -259,11 +254,7 @@ function SkillCard({
                 </div>
 
                 <div className="flex gap-2">
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    onClick={onView}
-                  >
+                  <Button size="sm" variant="ghost" onClick={onView}>
                     <Eye className="h-4 w-4" />
                   </Button>
                   {isInstalled ? (
@@ -344,12 +335,7 @@ function SkillCard({
       </CardContent>
 
       <div className="p-4 border-t flex gap-2">
-        <Button
-          size="sm"
-          variant="outline"
-          onClick={onView}
-          className="flex-1"
-        >
+        <Button size="sm" variant="outline" onClick={onView} className="flex-1">
           <Eye className="h-4 w-4 mr-1" />
           View
         </Button>

@@ -74,18 +74,26 @@ export function Providers({ children }: { children: React.ReactNode }) {
 
     setThemeState(initialTheme);
     applyThemePreference(initialTheme);
-    
+
     // Initialize Sentry user context
-    authClient.getSession().then((session) => {
-      if (session?.user) {
-        setUserContext(session.user.id, session.user.email, session.user.name || undefined);
-      } else {
+    authClient
+      .getSession()
+      .then((res) => {
+        const session = res.data;
+        if (session?.user) {
+          setUserContext(
+            session.user.id,
+            session.user.email,
+            session.user.name || undefined,
+          );
+        } else {
+          clearUserContext();
+        }
+      })
+      .catch(() => {
+        // Session fetch failed, clear context
         clearUserContext();
-      }
-    }).catch(() => {
-      // Session fetch failed, clear context
-      clearUserContext();
-    });
+      });
   }, [applyThemePreference]);
 
   useEffect(() => {
@@ -122,7 +130,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
           errorType: "swr_error",
         },
       });
-      
+
       const isSessionAuthError =
         error instanceof FetchError &&
         error.status === 401 &&

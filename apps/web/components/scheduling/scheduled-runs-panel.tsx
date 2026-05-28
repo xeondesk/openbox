@@ -1,7 +1,10 @@
 "use client";
 
-import type { ScheduledRun, ScheduledRunExecution } from "@/lib/scheduling/service";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import type {
+  ScheduledRun,
+  ScheduledRunExecution,
+} from "@/lib/scheduling/service";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -11,10 +14,8 @@ import {
   Trash2,
   CheckCircle,
   AlertCircle,
-  MoreVertical,
   Calendar,
   Zap,
-  Settings,
 } from "lucide-react";
 import { useState } from "react";
 import { formatDistanceToNow } from "date-fns";
@@ -90,6 +91,7 @@ export function ScheduledRunsPanel({
       <div className="flex gap-2 border-b">
         {["all", "active", "inactive"].map((tab) => (
           <button
+            type="button"
             key={tab}
             onClick={() => setFilter(tab as "all" | "active" | "inactive")}
             className={`px-3 py-2 text-sm font-medium border-b-2 transition-colors ${
@@ -125,7 +127,8 @@ export function ScheduledRunsPanel({
         <div className="space-y-2">
           {filteredSchedules.map((schedule) => {
             const scheduleExecutions = executions.get(schedule.id) || [];
-            const lastExecution = scheduleExecutions[scheduleExecutions.length - 1];
+            const lastExecution =
+              scheduleExecutions[scheduleExecutions.length - 1];
             const stats = calculateStats(scheduleExecutions);
 
             return (
@@ -186,7 +189,9 @@ export function ScheduledRunsPanel({
                     {/* Frequency and Next Run */}
                     <div className="grid grid-cols-2 gap-2 text-sm">
                       <div>
-                        <p className="text-xs text-muted-foreground">Frequency</p>
+                        <p className="text-xs text-muted-foreground">
+                          Frequency
+                        </p>
                         <div className="flex items-center gap-1">
                           <Zap className="h-4 w-4" />
                           <span>{getFrequencyLabel(schedule.frequency)}</span>
@@ -239,7 +244,9 @@ export function ScheduledRunsPanel({
                           <span className="text-muted-foreground">
                             Last execution
                           </span>
-                          <Badge className={getStatusColor(lastExecution.status)}>
+                          <Badge
+                            className={getStatusColor(lastExecution.status)}
+                          >
                             {lastExecution.status}
                           </Badge>
                         </div>
@@ -259,43 +266,45 @@ export function ScheduledRunsPanel({
 
                     {/* Expandable History */}
                     <button
+                      type="button"
                       onClick={() =>
                         setExpandedSchedule(
-                          expandedSchedule === schedule.id ? null : schedule.id
+                          expandedSchedule === schedule.id ? null : schedule.id,
                         )
                       }
                       className="text-xs text-blue-600 hover:text-blue-700 font-medium"
                     >
-                      {expandedSchedule === schedule.id
-                        ? "Hide"
-                        : "Show"}{" "}
+                      {expandedSchedule === schedule.id ? "Hide" : "Show"}{" "}
                       history
                     </button>
 
                     {expandedSchedule === schedule.id && (
                       <div className="max-h-40 overflow-y-auto space-y-1 border-t pt-2">
-                        {scheduleExecutions.slice(-5).reverse().map((exec) => (
-                          <div
-                            key={exec.id}
-                            className="flex items-center justify-between text-xs p-1 hover:bg-muted/50 rounded"
-                          >
-                            <div className="flex items-center gap-2">
-                              {exec.status === "success" ? (
-                                <CheckCircle className="h-3 w-3 text-green-600" />
-                              ) : (
-                                <AlertCircle className="h-3 w-3 text-red-600" />
-                              )}
-                              <span className="text-muted-foreground">
-                                {formatDistanceToNow(exec.startTime, {
-                                  addSuffix: true,
-                                })}
+                        {scheduleExecutions
+                          .slice(-5)
+                          .toReversed()
+                          .map((exec) => (
+                            <div
+                              key={exec.id}
+                              className="flex items-center justify-between text-xs p-1 hover:bg-muted/50 rounded"
+                            >
+                              <div className="flex items-center gap-2">
+                                {exec.status === "success" ? (
+                                  <CheckCircle className="h-3 w-3 text-green-600" />
+                                ) : (
+                                  <AlertCircle className="h-3 w-3 text-red-600" />
+                                )}
+                                <span className="text-muted-foreground">
+                                  {formatDistanceToNow(exec.startTime, {
+                                    addSuffix: true,
+                                  })}
+                                </span>
+                              </div>
+                              <span className="font-medium">
+                                {(exec.duration || 0) / 1000}s
                               </span>
                             </div>
-                            <span className="font-medium">
-                              {(exec.duration || 0) / 1000}s
-                            </span>
-                          </div>
-                        ))}
+                          ))}
                       </div>
                     )}
                   </div>
@@ -333,15 +342,4 @@ function calculateStats(executions: ScheduledRunExecution[]): {
         ? durations.reduce((a, b) => a + b, 0) / durations.length
         : 0,
   };
-}
-
-interface ScheduledRunExecution {
-  id: string;
-  scheduledRunId: string;
-  startTime: Date;
-  endTime?: Date;
-  status: "pending" | "running" | "success" | "failure" | "skipped";
-  output?: string;
-  errorMessage?: string;
-  duration?: number;
 }

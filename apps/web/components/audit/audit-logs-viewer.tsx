@@ -37,11 +37,12 @@ interface AuditLog {
 
 interface AuditLogsViewerProps {
   logs: AuditLog[];
-  onExport?: () => void;
 }
 
-export function AuditLogsViewer({ logs, onExport }: AuditLogsViewerProps) {
-  const [selectedEventType, setSelectedEventType] = useState<string | null>(null);
+export function AuditLogsViewer({ logs }: AuditLogsViewerProps) {
+  const [selectedEventType, setSelectedEventType] = useState<string | null>(
+    null,
+  );
   const [selectedUser, setSelectedUser] = useState<string | null>(null);
 
   // Get unique event types and users
@@ -60,8 +61,7 @@ export function AuditLogsViewer({ logs, onExport }: AuditLogsViewerProps) {
       return "bg-green-100 text-green-800";
     if (eventType.includes("FAILED") || eventType.includes("ERROR"))
       return "bg-red-100 text-red-800";
-    if (eventType.includes("DELETE"))
-      return "bg-orange-100 text-orange-800";
+    if (eventType.includes("DELETE")) return "bg-orange-100 text-orange-800";
     if (eventType.includes("CHANGE") || eventType.includes("MODIFIED"))
       return "bg-blue-100 text-blue-800";
     return "bg-gray-100 text-gray-800";
@@ -82,13 +82,23 @@ export function AuditLogsViewer({ logs, onExport }: AuditLogsViewerProps) {
           <div>
             <CardTitle>Audit Logs</CardTitle>
             <CardDescription>
-              View all user actions and system events for compliance and security
+              View all user actions and system events for compliance and
+              security
             </CardDescription>
           </div>
           <Button
             variant="outline"
             size="sm"
-            onClick={onExport}
+            onClick={() => {
+              const json = JSON.stringify(logs, null, 2);
+              const blob = new Blob([json], { type: "application/json" });
+              const url = URL.createObjectURL(blob);
+              const a = document.createElement("a");
+              a.href = url;
+              a.download = `audit-logs-${new Date().toISOString().split("T")[0]}.json`;
+              a.click();
+              URL.revokeObjectURL(url);
+            }}
             className="gap-2"
           >
             <Download className="h-4 w-4" />
@@ -100,9 +110,14 @@ export function AuditLogsViewer({ logs, onExport }: AuditLogsViewerProps) {
         {/* Filters */}
         <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
           <div className="flex-1">
-            <label className="text-sm font-medium">Event Type</label>
-            <Select value={selectedEventType || ""} onValueChange={(v) => setSelectedEventType(v || null)}>
-              <SelectTrigger>
+            <label htmlFor="event-type" className="text-sm font-medium">
+              Event Type
+            </label>
+            <Select
+              value={selectedEventType || ""}
+              onValueChange={(v) => setSelectedEventType(v || null)}
+            >
+              <SelectTrigger id="event-type">
                 <SelectValue placeholder="All events" />
               </SelectTrigger>
               <SelectContent>
@@ -116,9 +131,14 @@ export function AuditLogsViewer({ logs, onExport }: AuditLogsViewerProps) {
             </Select>
           </div>
           <div className="flex-1">
-            <label className="text-sm font-medium">User ID</label>
-            <Select value={selectedUser || ""} onValueChange={(v) => setSelectedUser(v || null)}>
-              <SelectTrigger>
+            <label htmlFor="user-id" className="text-sm font-medium">
+              User ID
+            </label>
+            <Select
+              value={selectedUser || ""}
+              onValueChange={(v) => setSelectedUser(v || null)}
+            >
+              <SelectTrigger id="user-id">
                 <SelectValue placeholder="All users" />
               </SelectTrigger>
               <SelectContent>
@@ -169,11 +189,15 @@ export function AuditLogsViewer({ logs, onExport }: AuditLogsViewerProps) {
                       </span>
                     </TableCell>
                     <TableCell>
-                      <code className="text-xs">{log.userId.slice(0, 8)}...</code>
+                      <code className="text-xs">
+                        {log.userId.slice(0, 8)}...
+                      </code>
                     </TableCell>
                     <TableCell>
                       {log.sessionId ? (
-                        <code className="text-xs">{log.sessionId.slice(0, 8)}...</code>
+                        <code className="text-xs">
+                          {log.sessionId.slice(0, 8)}...
+                        </code>
                       ) : (
                         <span className="text-muted-foreground">—</span>
                       )}
@@ -188,7 +212,10 @@ export function AuditLogsViewer({ logs, onExport }: AuditLogsViewerProps) {
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={5} className="h-24 text-center text-muted-foreground">
+                  <TableCell
+                    colSpan={5}
+                    className="h-24 text-center text-muted-foreground"
+                  >
                     No audit logs found
                   </TableCell>
                 </TableRow>

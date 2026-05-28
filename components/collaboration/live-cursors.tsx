@@ -1,7 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useUserCursors, useActiveCollaborators } from "@/hooks/use-collaboration";
+import {
+  useUserCursors,
+  useActiveCollaborators,
+} from "@/hooks/use-collaboration";
 import type { UserPresence } from "@/lib/collaboration/service";
 
 interface LiveCursorsProps {
@@ -39,7 +41,7 @@ interface CursorProps {
 function Cursor({ userName, color, position }: CursorProps) {
   // This component would position cursors based on editor layout
   // For now, it's a placeholder implementation
-  
+
   return (
     <div
       className="fixed flex items-center gap-1"
@@ -82,7 +84,7 @@ export function PresenceIndicator({
   currentUserId,
 }: PresenceIndicatorProps) {
   const activeCollaborators = useActiveCollaborators(presence).filter(
-    (p) => p.userId !== currentUserId
+    (p) => p.userId !== currentUserId,
   );
 
   if (activeCollaborators.length === 0) {
@@ -134,7 +136,7 @@ export function CollaborationStatus({
   currentUserId,
 }: CollaborationStatusProps) {
   const activeCount = presence.filter(
-    (p) => p.userId !== currentUserId && p.isActive
+    (p) => p.userId !== currentUserId && p.isActive,
   ).length;
 
   return (
@@ -146,7 +148,8 @@ export function CollaborationStatus({
       />
       <span>
         {isConnected ? "Connected" : "Disconnected"}
-        {activeCount > 0 && ` • ${activeCount} other user${activeCount !== 1 ? "s" : ""}`}
+        {activeCount > 0 &&
+          ` • ${activeCount} other user${activeCount !== 1 ? "s" : ""}`}
       </span>
     </div>
   );

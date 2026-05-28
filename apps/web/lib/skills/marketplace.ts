@@ -1,11 +1,9 @@
 /**
  * Skills Marketplace Service
- * 
+ *
  * Manages community-created skills for agent workflows, including
  * discovery, installation, rating, and version management.
  */
-
-import { z } from "zod";
 
 export type SkillCategory =
   | "automation"
@@ -90,10 +88,10 @@ export interface SkillReview {
  * Skills Marketplace Manager
  */
 export class SkillsMarketplace {
-  private skills: Map<string, SkillMetadata> = new Map();
-  private installedSkills: Map<string, InstalledSkill> = new Map();
-  private reviews: Map<string, SkillReview[]> = new Map();
-  private versions: Map<string, Map<string, SkillConfig>> = new Map(); // skillId -> version -> config
+  private skills = new Map<string, SkillMetadata>();
+  private installedSkills = new Map<string, InstalledSkill>();
+  private reviews = new Map<string, SkillReview[]>();
+  private versions = new Map<string, Map<string, SkillConfig>>(); // skillId -> version -> config
 
   /**
    * Publish a new skill to the marketplace
@@ -101,7 +99,7 @@ export class SkillsMarketplace {
   async publishSkill(
     skillId: string,
     metadata: Partial<SkillMetadata>,
-    config: SkillConfig
+    config: SkillConfig,
   ): Promise<SkillMetadata> {
     const skill: SkillMetadata = {
       id: skillId,
@@ -151,7 +149,7 @@ export class SkillsMarketplace {
     limit?: number;
   }): SkillMetadata[] {
     let results = Array.from(this.skills.values()).filter(
-      (s) => s.status === "published"
+      (s) => s.status === "published",
     );
 
     // Filter by search query
@@ -161,7 +159,7 @@ export class SkillsMarketplace {
         (s) =>
           s.name.toLowerCase().includes(q) ||
           s.description.toLowerCase().includes(q) ||
-          s.tags.some((t) => t.toLowerCase().includes(q))
+          s.tags.some((t) => t.toLowerCase().includes(q)),
       );
     }
 
@@ -173,7 +171,7 @@ export class SkillsMarketplace {
     // Filter by tags
     if (query.tags && query.tags.length > 0) {
       results = results.filter((s) =>
-        query.tags!.some((t) => s.tags.includes(t))
+        query.tags!.some((t) => s.tags.includes(t)),
       );
     }
 
@@ -216,7 +214,7 @@ export class SkillsMarketplace {
   async installSkill(
     skillId: string,
     sessionId: string,
-    config?: Record<string, unknown>
+    config?: Record<string, unknown>,
   ): Promise<InstalledSkill> {
     const skill = this.skills.get(skillId);
     if (!skill) {
@@ -266,7 +264,7 @@ export class SkillsMarketplace {
    */
   getInstalledSkills(sessionId: string): InstalledSkill[] {
     return Array.from(this.installedSkills.values()).filter(
-      (s) => s.sessionId === sessionId
+      (s) => s.sessionId === sessionId,
     );
   }
 
@@ -275,7 +273,7 @@ export class SkillsMarketplace {
    */
   async updateSkillConfig(
     installId: string,
-    config: Record<string, unknown>
+    config: Record<string, unknown>,
   ): Promise<InstalledSkill> {
     const installed = this.installedSkills.get(installId);
     if (!installed) {
@@ -297,7 +295,7 @@ export class SkillsMarketplace {
       authorId: string;
       rating: number;
       comment: string;
-    }
+    },
   ): Promise<SkillReview> {
     if (review.rating < 1 || review.rating > 5) {
       throw new Error("Rating must be between 1 and 5");
@@ -343,7 +341,7 @@ export class SkillsMarketplace {
    */
   getFeaturedSkills(limit: number = 6): SkillMetadata[] {
     const published = Array.from(this.skills.values()).filter(
-      (s) => s.status === "published"
+      (s) => s.status === "published",
     );
 
     return published
@@ -356,7 +354,7 @@ export class SkillsMarketplace {
    */
   getTrendingSkills(limit: number = 6): SkillMetadata[] {
     const published = Array.from(this.skills.values()).filter(
-      (s) => s.status === "published"
+      (s) => s.status === "published",
     );
 
     return published
@@ -367,7 +365,10 @@ export class SkillsMarketplace {
   /**
    * Get skills by category
    */
-  getSkillsByCategory(category: SkillCategory, limit: number = 12): SkillMetadata[] {
+  getSkillsByCategory(
+    category: SkillCategory,
+    limit: number = 12,
+  ): SkillMetadata[] {
     return Array.from(this.skills.values())
       .filter((s) => s.category === category && s.status === "published")
       .sort((a, b) => b.stats.rating - a.stats.rating)
@@ -397,7 +398,7 @@ export class SkillsMarketplace {
    */
   async updateSkill(
     skillId: string,
-    updates: Partial<SkillMetadata>
+    updates: Partial<SkillMetadata>,
   ): Promise<SkillMetadata> {
     const skill = this.skills.get(skillId);
     if (!skill) {

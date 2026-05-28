@@ -22,13 +22,13 @@ interface CodeReviewPanelProps {
 
 export function CodeReviewPanel({
   result,
-  code,
+  code: _code,
   onDismiss,
 }: CodeReviewPanelProps) {
   const [expandedIssue, setExpandedIssue] = useState<number | null>(null);
-  const [activeTab, setActiveTab] = useState<"issues" | "safety" | "performance">(
-    "issues"
-  );
+  const [activeTab, setActiveTab] = useState<
+    "issues" | "safety" | "performance"
+  >("issues");
 
   const getSeverityColor = (severity: string) => {
     switch (severity) {
@@ -71,12 +71,11 @@ export function CodeReviewPanel({
               <Code2 className="h-5 w-5 text-blue-600" />
               <CardTitle>Code Review Analysis</CardTitle>
             </div>
-            <p className="text-sm text-muted-foreground">
-              {result.summary}
-            </p>
+            <p className="text-sm text-muted-foreground">{result.summary}</p>
           </div>
           {onDismiss && (
             <button
+              type="button"
               onClick={onDismiss}
               className="text-muted-foreground hover:text-foreground"
             >
@@ -90,7 +89,9 @@ export function CodeReviewPanel({
         {/* Score Overview */}
         <div className="grid gap-4 sm:grid-cols-3">
           <div className="rounded-lg bg-muted p-3 text-center">
-            <div className={`text-3xl font-bold ${getScoreColor(result.overallScore)}`}>
+            <div
+              className={`text-3xl font-bold ${getScoreColor(result.overallScore)}`}
+            >
               {result.overallScore}
             </div>
             <p className="text-xs text-muted-foreground mt-1">Overall Score</p>
@@ -115,8 +116,11 @@ export function CodeReviewPanel({
         <div className="flex gap-2 border-b">
           {["issues", "safety", "performance"].map((tab) => (
             <button
+              type="button"
               key={tab}
-              onClick={() => setActiveTab(tab as "issues" | "safety" | "performance")}
+              onClick={() =>
+                setActiveTab(tab as "issues" | "safety" | "performance")
+              }
               className={`px-3 py-2 text-sm font-medium border-b-2 transition-colors ${
                 activeTab === tab
                   ? "border-blue-600 text-blue-600"
@@ -139,9 +143,10 @@ export function CodeReviewPanel({
               </div>
             ) : (
               result.issues.map((issue, idx) => (
-                <div
+                <button
+                  type="button"
                   key={idx}
-                  className="rounded-lg border p-3 hover:bg-muted/50 cursor-pointer transition-colors"
+                  className="w-full text-left rounded-lg border p-3 hover:bg-muted/50 cursor-pointer transition-colors"
                   onClick={() =>
                     setExpandedIssue(expandedIssue === idx ? null : idx)
                   }
@@ -153,7 +158,9 @@ export function CodeReviewPanel({
                         <span className="font-medium text-sm truncate">
                           {issue.message}
                         </span>
-                        <Badge className={`${getSeverityColor(issue.severity)} text-xs`}>
+                        <Badge
+                          className={`${getSeverityColor(issue.severity)} text-xs`}
+                        >
                           {issue.severity}
                         </Badge>
                       </div>
@@ -164,20 +171,24 @@ export function CodeReviewPanel({
                       {expandedIssue === idx && (
                         <div className="mt-3 pt-3 border-t space-y-2 text-sm">
                           <div>
-                            <p className="font-medium text-xs text-muted-foreground">Code:</p>
+                            <p className="font-medium text-xs text-muted-foreground">
+                              Code:
+                            </p>
                             <code className="bg-muted p-2 rounded block text-xs overflow-x-auto">
                               {issue.code}
                             </code>
                           </div>
                           <div>
-                            <p className="font-medium text-xs text-muted-foreground">Fix:</p>
+                            <p className="font-medium text-xs text-muted-foreground">
+                              Fix:
+                            </p>
                             <p className="text-xs">{issue.suggestion}</p>
                           </div>
                         </div>
                       )}
                     </div>
                   </div>
-                </div>
+                </button>
               ))
             )}
           </div>
@@ -189,13 +200,19 @@ export function CodeReviewPanel({
             <div className="rounded-lg bg-muted p-3">
               <div className="flex items-center gap-2 mb-2">
                 <Shield className="h-5 w-5 text-blue-600" />
-                <span className="font-medium">Security Score: {result.safetyCheck.securityScore}/100</span>
+                <span className="font-medium">
+                  Security Score: {result.safetyCheck.securityScore}/100
+                </span>
               </div>
               <div className="grid gap-2 text-sm">
                 <div className="flex items-center justify-between">
                   <span>SQL Injection Risk:</span>
                   <Badge
-                    variant={result.safetyCheck.hasSQLInjection ? "destructive" : "outline"}
+                    variant={
+                      result.safetyCheck.hasSQLInjection
+                        ? "destructive"
+                        : "outline"
+                    }
                   >
                     {result.safetyCheck.hasSQLInjection ? "YES" : "NO"}
                   </Badge>
@@ -203,7 +220,11 @@ export function CodeReviewPanel({
                 <div className="flex items-center justify-between">
                   <span>XSS Vulnerability:</span>
                   <Badge
-                    variant={result.safetyCheck.hasXSSVulnerability ? "destructive" : "outline"}
+                    variant={
+                      result.safetyCheck.hasXSSVulnerability
+                        ? "destructive"
+                        : "outline"
+                    }
                   >
                     {result.safetyCheck.hasXSSVulnerability ? "YES" : "NO"}
                   </Badge>
@@ -211,7 +232,11 @@ export function CodeReviewPanel({
                 <div className="flex items-center justify-between">
                   <span>Hardcoded Secrets:</span>
                   <Badge
-                    variant={result.safetyCheck.hasHardcodedSecrets ? "destructive" : "outline"}
+                    variant={
+                      result.safetyCheck.hasHardcodedSecrets
+                        ? "destructive"
+                        : "outline"
+                    }
                   >
                     {result.safetyCheck.hasHardcodedSecrets ? "YES" : "NO"}
                   </Badge>
@@ -221,7 +246,9 @@ export function CodeReviewPanel({
 
             {result.safetyCheck.issues.length > 0 && (
               <div className="rounded-lg border border-red-200 bg-red-50 p-3">
-                <p className="font-medium text-sm text-red-800 mb-2">Security Issues:</p>
+                <p className="font-medium text-sm text-red-800 mb-2">
+                  Security Issues:
+                </p>
                 <ul className="space-y-1">
                   {result.safetyCheck.issues.map((issue, idx) => (
                     <li key={idx} className="text-xs text-red-700">
@@ -240,24 +267,49 @@ export function CodeReviewPanel({
             <div className="rounded-lg bg-muted p-3">
               <div className="flex items-center gap-2 mb-2">
                 <Zap className="h-5 w-5 text-amber-600" />
-                <span className="font-medium">Performance Score: {result.performanceAnalysis.performanceScore}/100</span>
+                <span className="font-medium">
+                  Performance Score:{" "}
+                  {result.performanceAnalysis.performanceScore}/100
+                </span>
               </div>
               <div className="grid gap-2 text-sm">
                 <div className="flex items-center justify-between">
                   <span>N+1 Query Pattern:</span>
-                  <Badge variant={result.performanceAnalysis.hasNPlusOneQueries ? "destructive" : "outline"}>
-                    {result.performanceAnalysis.hasNPlusOneQueries ? "FOUND" : "OK"}
+                  <Badge
+                    variant={
+                      result.performanceAnalysis.hasNPlusOneQueries
+                        ? "destructive"
+                        : "outline"
+                    }
+                  >
+                    {result.performanceAnalysis.hasNPlusOneQueries
+                      ? "FOUND"
+                      : "OK"}
                   </Badge>
                 </div>
                 <div className="flex items-center justify-between">
                   <span>Missing Indexes:</span>
-                  <Badge variant={result.performanceAnalysis.hasMissingIndexes ? "destructive" : "outline"}>
-                    {result.performanceAnalysis.hasMissingIndexes ? "FOUND" : "OK"}
+                  <Badge
+                    variant={
+                      result.performanceAnalysis.hasMissingIndexes
+                        ? "destructive"
+                        : "outline"
+                    }
+                  >
+                    {result.performanceAnalysis.hasMissingIndexes
+                      ? "FOUND"
+                      : "OK"}
                   </Badge>
                 </div>
                 <div className="flex items-center justify-between">
                   <span>Memory Leaks:</span>
-                  <Badge variant={result.performanceAnalysis.hasMemoryLeaks ? "destructive" : "outline"}>
+                  <Badge
+                    variant={
+                      result.performanceAnalysis.hasMemoryLeaks
+                        ? "destructive"
+                        : "outline"
+                    }
+                  >
                     {result.performanceAnalysis.hasMemoryLeaks ? "FOUND" : "OK"}
                   </Badge>
                 </div>
@@ -266,13 +318,17 @@ export function CodeReviewPanel({
 
             {result.performanceAnalysis.suggestions.length > 0 && (
               <div className="rounded-lg border border-amber-200 bg-amber-50 p-3">
-                <p className="font-medium text-sm text-amber-800 mb-2">Suggestions:</p>
+                <p className="font-medium text-sm text-amber-800 mb-2">
+                  Suggestions:
+                </p>
                 <ul className="space-y-1">
-                  {result.performanceAnalysis.suggestions.map((suggestion, idx) => (
-                    <li key={idx} className="text-xs text-amber-700">
-                      • {suggestion}
-                    </li>
-                  ))}
+                  {result.performanceAnalysis.suggestions.map(
+                    (suggestion, idx) => (
+                      <li key={idx} className="text-xs text-amber-700">
+                        • {suggestion}
+                      </li>
+                    ),
+                  )}
                 </ul>
               </div>
             )}
@@ -284,12 +340,15 @@ export function CodeReviewPanel({
           <div className="rounded-lg border border-blue-200 bg-blue-50 p-3 mt-4">
             <div className="flex items-center gap-2 mb-2">
               <TrendingUp className="h-4 w-4 text-blue-600" />
-              <p className="font-medium text-sm text-blue-800">Improvement Suggestions</p>
+              <p className="font-medium text-sm text-blue-800">
+                Improvement Suggestions
+              </p>
             </div>
             <ul className="space-y-1">
               {result.suggestions.slice(0, 3).map((suggestion, idx) => (
                 <li key={idx} className="text-xs text-blue-700">
-                  • <span className="font-medium">{suggestion.type}:</span> {suggestion.description}
+                  • <span className="font-medium">{suggestion.type}:</span>{" "}
+                  {suggestion.description}
                 </li>
               ))}
             </ul>

@@ -5,7 +5,6 @@ import {
   CollaborationService,
   type UserPresence,
   type EditOperation,
-  getUserColor,
 } from "@/lib/collaboration/service";
 
 interface UseCollaborationProps {
@@ -37,7 +36,7 @@ export function useCollaboration({
       .connect()
       .then(() => {
         setIsConnected(true);
-        
+
         // Subscribe to presence updates
         service.onPresenceUpdate((presence) => {
           setPresence(presence);
@@ -59,35 +58,32 @@ export function useCollaboration({
     (position: { line: number; column: number }) => {
       serviceRef.current?.updateCursor(position);
     },
-    []
+    [],
   );
 
   const sendEditOperation = useCallback(
     (operation: Omit<EditOperation, "id" | "userId" | "timestamp">) => {
       serviceRef.current?.sendEditOperation(operation);
     },
-    []
+    [],
   );
 
   const sendComment = useCallback(
     (content: string, position?: { line: number; column: number }) => {
       serviceRef.current?.sendComment(content, position);
     },
-    []
+    [],
   );
 
-  const onEdit = useCallback(
-    (callback: (operation: EditOperation) => void) => {
-      return serviceRef.current?.onEdit(callback) || (() => {});
-    },
-    []
-  );
+  const onEdit = useCallback((callback: (operation: EditOperation) => void) => {
+    return serviceRef.current?.onEdit(callback) || (() => {});
+  }, []);
 
   const onPresence = useCallback(
     (callback: (presence: UserPresence[]) => void) => {
       return serviceRef.current?.onPresenceUpdate(callback) || (() => {});
     },
-    []
+    [],
   );
 
   return {
@@ -105,7 +101,10 @@ export function useCollaboration({
 /**
  * Hook for displaying user cursors
  */
-export function useUserCursors(presence: UserPresence[], currentUserId: string) {
+export function useUserCursors(
+  presence: UserPresence[],
+  currentUserId: string,
+) {
   return presence
     .filter((p) => p.userId !== currentUserId && p.cursorPosition && p.isActive)
     .map((p) => ({

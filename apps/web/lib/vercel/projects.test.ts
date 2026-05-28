@@ -100,7 +100,8 @@ describe("Vercel project helpers", () => {
       ),
     );
     globalThis.fetch = Object.assign(fetchMock, {
-      preconnect: originalFetch.preconnect,
+      preconnect: (originalFetch as typeof fetch & { preconnect?: unknown })
+        .preconnect,
     });
 
     const { isVercelInvalidTokenError, listMatchingVercelProjects } =

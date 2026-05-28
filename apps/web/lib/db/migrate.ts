@@ -151,7 +151,7 @@ async function reconcileLegacySchema(): Promise<void> {
   console.log("Legacy migration reconciliation complete");
 }
 
-try {
+async function main() {
   await ensureMigrationsTable();
 
   const migrationsRecorded = await hasRecordedMigrations();
@@ -162,9 +162,11 @@ try {
   console.log("Running database migrations…");
   await migrate(db, { migrationsFolder: MIGRATIONS_FOLDER });
   console.log("Migrations applied successfully");
-} catch (error) {
-  console.error("Migration failed:", error);
-  process.exit(1);
-} finally {
-  await client.end();
 }
+
+main()
+  .catch((error) => {
+    console.error("Migration failed:", error);
+    process.exit(1);
+  })
+  .finally(() => client.end());

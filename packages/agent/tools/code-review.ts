@@ -1,6 +1,6 @@
 /**
  * AI-Powered Code Review Tool
- * 
+ *
  * Leverages Claude/GPT models to provide intelligent code analysis
  * including security checks, performance optimization, and style improvements.
  */
@@ -54,12 +54,18 @@ export interface PerformanceAnalysis {
 export const codeReviewTool = tool({
   description:
     "Review code for quality, security, performance, and best practices using AI analysis",
-  parameters: z.object({
-    code: z
-      .string()
-      .describe("The code to review"),
+  inputSchema: z.object({
+    code: z.string().describe("The code to review"),
     language: z
-      .enum(["javascript", "typescript", "python", "sql", "html", "css", "json"])
+      .enum([
+        "javascript",
+        "typescript",
+        "python",
+        "sql",
+        "html",
+        "css",
+        "json",
+      ])
       .describe("Programming language of the code"),
     context: z
       .object({
@@ -93,11 +99,11 @@ async function performCodeReview(
   code: string,
   language: string,
   reviewType: string,
-  context?: {
+  _context?: {
     fileName?: string;
     projectType?: string;
     framework?: string;
-  }
+  },
 ): Promise<CodeReviewResult> {
   const issues: CodeIssue[] = [];
   const suggestions: ReviewSuggestion[] = [];
@@ -129,7 +135,7 @@ async function performCodeReview(
   const mediumCount = issues.filter((i) => i.severity === "medium").length;
   const overallScore = Math.max(
     0,
-    100 - criticalCount * 20 - highCount * 10 - mediumCount * 5
+    100 - criticalCount * 20 - highCount * 10 - mediumCount * 5,
   );
 
   const safetyCheck = analyzeSafety(code);
@@ -151,13 +157,17 @@ async function performCodeReview(
  */
 function analyzeSecurityIssues(
   code: string,
-  language: string
+  language: string,
 ): { issues: CodeIssue[]; suggestions: ReviewSuggestion[] } {
   const issues: CodeIssue[] = [];
   const suggestions: ReviewSuggestion[] = [];
 
   // SQL Injection detection
-  if (language === "sql" || code.includes("SELECT") || code.includes("INSERT")) {
+  if (
+    language === "sql" ||
+    code.includes("SELECT") ||
+    code.includes("INSERT")
+  ) {
     if (code.includes("'") && code.includes("+") && code.includes("var")) {
       issues.push({
         severity: "critical",
@@ -175,7 +185,7 @@ function analyzeSecurityIssues(
     code.includes("api_key") ||
     code.includes("secret")
   ) {
-    if (code.match(/['\"].*['\"]/) && code.match(/password|secret|key/i)) {
+    if (code.match(/['"].*['"]/) && code.match(/password|secret|key/i)) {
       issues.push({
         severity: "critical",
         category: "security",
@@ -199,8 +209,7 @@ function analyzeSecurityIssues(
         category: "security",
         message: "Potential XSS vulnerability with innerHTML",
         code: "Using innerHTML with unsanitized data",
-        suggestion:
-          "Use textContent instead or sanitize input with DOMPurify",
+        suggestion: "Use textContent instead or sanitize input with DOMPurify",
       });
     }
   }
@@ -220,7 +229,7 @@ function analyzeSecurityIssues(
  */
 function analyzePerformance(
   code: string,
-  language: string
+  _language: string,
 ): { issues: CodeIssue[]; suggestions: ReviewSuggestion[] } {
   const issues: CodeIssue[] = [];
   const suggestions: ReviewSuggestion[] = [];
@@ -247,7 +256,7 @@ function analyzePerformance(
   }
 
   // Inefficient loops
-  if (code.match(/for.*\.length/g)) {
+  if (/for.*\.length/g.test(code)) {
     suggestions.push({
       type: "optimization",
       priority: "low",
@@ -264,13 +273,13 @@ function analyzePerformance(
  */
 function analyzeStyle(
   code: string,
-  language: string
+  _language: string,
 ): { issues: CodeIssue[]; suggestions: ReviewSuggestion[] } {
   const issues: CodeIssue[] = [];
   const suggestions: ReviewSuggestion[] = [];
 
   // Naming conventions
-  if (code.match(/var [a-z]{1,2}\s*=/)) {
+  if (/var [a-z]{1,2}\s*=/.test(code)) {
     issues.push({
       severity: "low",
       category: "style",
@@ -327,11 +336,12 @@ function analyzeSafety(code: string): SafetyCheck {
   }
 
   return {
-    hasSQLInjection: code.includes("'") && code.includes("+") && code.includes("SELECT"),
-    hasXSSVulnerability: code.includes("innerHTML") && !code.includes("DOMPurify"),
+    hasSQLInjection:
+      code.includes("'") && code.includes("+") && code.includes("SELECT"),
+    hasXSSVulnerability:
+      code.includes("innerHTML") && !code.includes("DOMPurify"),
     hasHardcodedSecrets:
-      code.match(/password|api_key|secret/i) !== null &&
-      code.includes('"'),
+      code.match(/password|api_key|secret/i) !== null && code.includes('"'),
     securityScore: Math.max(0, securityScore),
     issues,
   };
@@ -342,20 +352,18 @@ function analyzeSafety(code: string): SafetyCheck {
  */
 function analyzePerformanceMetrics(
   code: string,
-  language: string
+  _language: string,
 ): PerformanceAnalysis {
   const suggestions: string[] = [];
   let performanceScore = 100;
 
-  const hasNPlusOne =
-    code.includes("for") && code.includes("query");
+  const hasNPlusOne = code.includes("for") && code.includes("query");
   if (hasNPlusOne) {
     suggestions.push("Use batch queries instead of loops");
     performanceScore -= 25;
   }
 
-  const hasMissingIndexes =
-    code.includes("WHERE") && code.length > 1000;
+  const hasMissingIndexes = code.includes("WHERE") && code.length > 1000;
   if (hasMissingIndexes) {
     suggestions.push("Consider adding database indexes");
     performanceScore -= 15;
@@ -418,7 +426,9 @@ export function formatCodeReviewReport(result: CodeReviewResult): string {
     report += `${"-".repeat(50)}\n`;
 
     ["critical", "high", "medium", "low"].forEach((severity) => {
-      const severityIssues = result.issues.filter((i) => i.severity === severity);
+      const severityIssues = result.issues.filter(
+        (i) => i.severity === severity,
+      );
       if (severityIssues.length > 0) {
         report += `\n${severity.toUpperCase()} (${severityIssues.length}):\n`;
         severityIssues.forEach((issue) => {

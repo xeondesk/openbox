@@ -3,7 +3,6 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import { Providers } from "./providers";
 import "./globals.css";
-import { sentryConfig } from "@/lib/monitoring/sentry-config";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",

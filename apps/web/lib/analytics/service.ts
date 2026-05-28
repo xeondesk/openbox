@@ -1,18 +1,16 @@
 /**
  * Analytics service for aggregating and retrieving metrics data
- * 
+ *
  * This service handles data aggregation for the analytics dashboard,
  * including workflow metrics, chat analytics, sandbox usage, and costs.
  */
-
-import type { WorkflowMetric, ChatMetric, SandboxMetric } from "@/lib/monitoring/metrics";
 
 interface TimeRange {
   start: Date;
   end: Date;
 }
 
-interface AnalyticsData {
+export interface AnalyticsData {
   totalWorkflows: number;
   successfulWorkflows: number;
   failedWorkflows: number;
@@ -26,7 +24,7 @@ interface AnalyticsData {
   totalCostThisPeriod: number;
 }
 
-interface TimeSeriesData {
+export interface TimeSeriesData {
   timestamp: Date;
   value: number;
   label: string;
@@ -38,7 +36,7 @@ interface WorkflowSuccessRate {
   count: number;
 }
 
-interface ApiResponseTimes {
+export interface ApiResponseTimes {
   endpoint: string;
   averageTime: number;
   p95: number;
@@ -61,34 +59,48 @@ const mockApiMetrics = [
   { endpoint: "/api/chat", time: 245, p95: 520, p99: 850, errors: 0.2 },
   { endpoint: "/api/sandbox", time: 1340, p95: 2100, p99: 3200, errors: 0.5 },
   { endpoint: "/api/sessions", time: 120, p95: 280, p99: 450, errors: 0.1 },
-  { endpoint: "/api/generate-commit", time: 2100, p95: 4200, p99: 6500, errors: 0.8 },
+  {
+    endpoint: "/api/generate-commit",
+    time: 2100,
+    p95: 4200,
+    p99: 6500,
+    errors: 0.8,
+  },
   { endpoint: "/api/transcribe", time: 890, p95: 1800, p99: 2900, errors: 0.3 },
 ];
 
 const mockCostData = [
-  { date: "2025-05-18", cost: 24.50 },
+  { date: "2025-05-18", cost: 24.5 },
   { date: "2025-05-19", cost: 28.75 },
-  { date: "2025-05-20", cost: 31.20 },
-  { date: "2025-05-21", cost: 26.80 },
+  { date: "2025-05-20", cost: 31.2 },
+  { date: "2025-05-21", cost: 26.8 },
   { date: "2025-05-22", cost: 32.45 },
 ];
 
 /**
  * Get aggregated analytics for a time range
  */
-export async function getAnalytics(timeRange: TimeRange): Promise<AnalyticsData> {
+export async function getAnalytics(
+  _timeRange: TimeRange,
+): Promise<AnalyticsData> {
   // In production, query database for real metrics
   const workflows = mockWorkflowData;
-  
-  const totalWorkflows = workflows.reduce((sum, d) => sum + d.successCount + d.failureCount, 0);
-  const successfulWorkflows = workflows.reduce((sum, d) => sum + d.successCount, 0);
+
+  const totalWorkflows = workflows.reduce(
+    (sum, d) => sum + d.successCount + d.failureCount,
+    0,
+  );
+  const successfulWorkflows = workflows.reduce(
+    (sum, d) => sum + d.successCount,
+    0,
+  );
   const failedWorkflows = workflows.reduce((sum, d) => sum + d.failureCount, 0);
   const averageExecutionTime = Math.round(
-    workflows.reduce((sum, d) => sum + d.avgTime, 0) / workflows.length
+    workflows.reduce((sum, d) => sum + d.avgTime, 0) / workflows.length,
   );
-  
+
   const costs = mockCostData.reduce((sum, d) => sum + d.cost, 0);
-  
+
   return {
     totalWorkflows,
     successfulWorkflows,
@@ -99,7 +111,8 @@ export async function getAnalytics(timeRange: TimeRange): Promise<AnalyticsData>
     totalUsers: 1240,
     activeUsers: 342,
     totalSandboxes: 486,
-    averageCostPerRun: costs > 0 ? Math.round((costs / totalWorkflows) * 100) / 100 : 0,
+    averageCostPerRun:
+      costs > 0 ? Math.round((costs / totalWorkflows) * 100) / 100 : 0,
     totalCostThisPeriod: Math.round(costs * 100) / 100,
   };
 }
@@ -107,10 +120,14 @@ export async function getAnalytics(timeRange: TimeRange): Promise<AnalyticsData>
 /**
  * Get workflow success rate over time
  */
-export async function getWorkflowSuccessRates(): Promise<WorkflowSuccessRate[]> {
+export async function getWorkflowSuccessRates(): Promise<
+  WorkflowSuccessRate[]
+> {
   return mockWorkflowData.map((d) => ({
     date: d.date,
-    successRate: Math.round((d.successCount / (d.successCount + d.failureCount)) * 100),
+    successRate: Math.round(
+      (d.successCount / (d.successCount + d.failureCount)) * 100,
+    ),
     count: d.successCount + d.failureCount,
   }));
 }
@@ -153,10 +170,12 @@ export async function getCostTrends(): Promise<TimeSeriesData[]> {
 /**
  * Get workflow execution time distribution
  */
-export async function getExecutionTimeDistribution(): Promise<Array<{
-  range: string;
-  count: number;
-}>> {
+export async function getExecutionTimeDistribution(): Promise<
+  Array<{
+    range: string;
+    count: number;
+  }>
+> {
   return [
     { range: "< 1s", count: 320 },
     { range: "1-5s", count: 485 },
@@ -169,11 +188,13 @@ export async function getExecutionTimeDistribution(): Promise<Array<{
 /**
  * Get model usage statistics
  */
-export async function getModelUsageStats(): Promise<Array<{
-  model: string;
-  usage: number;
-  percentage: number;
-}>> {
+export async function getModelUsageStats(): Promise<
+  Array<{
+    model: string;
+    usage: number;
+    percentage: number;
+  }>
+> {
   const stats = [
     { model: "gpt-4o", usage: 487 },
     { model: "claude-opus", usage: 342 },
@@ -181,9 +202,9 @@ export async function getModelUsageStats(): Promise<Array<{
     { model: "claude-haiku", usage: 128 },
     { model: "others", usage: 82 },
   ];
-  
+
   const total = stats.reduce((sum, s) => sum + s.usage, 0);
-  
+
   return stats.map((s) => ({
     ...s,
     percentage: Math.round((s.usage / total) * 100),
@@ -193,17 +214,39 @@ export async function getModelUsageStats(): Promise<Array<{
 /**
  * Get top errors in recent executions
  */
-export async function getTopErrors(): Promise<Array<{
-  error: string;
-  count: number;
-  lastSeen: Date;
-}>> {
+export async function getTopErrors(): Promise<
+  Array<{
+    error: string;
+    count: number;
+    lastSeen: Date;
+  }>
+> {
   return [
-    { error: "Sandbox timeout", count: 42, lastSeen: new Date(Date.now() - 3600000) },
-    { error: "Memory limit exceeded", count: 28, lastSeen: new Date(Date.now() - 7200000) },
-    { error: "Network connection failed", count: 19, lastSeen: new Date(Date.now() - 1800000) },
-    { error: "Invalid git credentials", count: 15, lastSeen: new Date(Date.now() - 86400000) },
-    { error: "Model rate limit", count: 11, lastSeen: new Date(Date.now() - 2700000) },
+    {
+      error: "Sandbox timeout",
+      count: 42,
+      lastSeen: new Date(Date.now() - 3600000),
+    },
+    {
+      error: "Memory limit exceeded",
+      count: 28,
+      lastSeen: new Date(Date.now() - 7200000),
+    },
+    {
+      error: "Network connection failed",
+      count: 19,
+      lastSeen: new Date(Date.now() - 1800000),
+    },
+    {
+      error: "Invalid git credentials",
+      count: 15,
+      lastSeen: new Date(Date.now() - 86400000),
+    },
+    {
+      error: "Model rate limit",
+      count: 11,
+      lastSeen: new Date(Date.now() - 2700000),
+    },
   ];
 }
 

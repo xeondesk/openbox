@@ -2,7 +2,7 @@
 
 import type { AnalyticsData } from "@/lib/analytics/service";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { TrendingUp, TrendingDown, AlertCircle } from "lucide-react";
+import { TrendingUp, AlertCircle } from "lucide-react";
 
 interface AnalyticsOverviewProps {
   data: AnalyticsData;

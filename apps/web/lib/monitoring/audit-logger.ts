@@ -1,6 +1,6 @@
 /**
  * Audit logging system for compliance and security
- * 
+ *
  * Logs all significant user actions and system events for audit trails.
  */
 
@@ -36,7 +36,7 @@ export async function logAuditEvent(
     sessionId?: string;
     ipAddress?: string;
     userAgent?: string;
-  }
+  },
 ) {
   if (!auditConfig.enabled) return;
 
@@ -60,7 +60,8 @@ export async function logAuditEvent(
 
   // Also log to Sentry for persistence
   const eventName = auditConfig.trackableEvents[eventType];
-  Sentry.captureMessage(`Audit: ${eventName}`, "info", {
+  Sentry.captureMessage(`Audit: ${eventName}`, {
+    level: "info",
     extra: {
       userId,
       ...metadata,
@@ -87,7 +88,7 @@ export async function logAuthEvent(
   eventType: "LOGIN" | "LOGOUT",
   userId: string,
   ipAddress?: string,
-  userAgent?: string
+  userAgent?: string,
 ) {
   return logAuditEvent(eventType, userId, undefined, {
     ipAddress,
@@ -102,7 +103,7 @@ export async function logSessionEvent(
   eventType: "SESSION_CREATED" | "SESSION_MODIFIED" | "SESSION_DELETED",
   userId: string,
   sessionId: string,
-  metadata?: Record<string, unknown>
+  metadata?: Record<string, unknown>,
 ) {
   return logAuditEvent(eventType, userId, metadata, { sessionId });
 }
@@ -119,7 +120,7 @@ export async function logRepositoryEvent(
     branch?: string;
     commitHash?: string;
     prNumber?: string;
-  }
+  },
 ) {
   return logAuditEvent(eventType, userId, metadata, { sessionId });
 }
@@ -134,7 +135,7 @@ export async function logChatEvent(
   metadata?: {
     chatId?: string;
     messageCount?: number;
-  }
+  },
 ) {
   return logAuditEvent(eventType, userId, metadata, { sessionId });
 }
@@ -151,7 +152,7 @@ export async function logWorkflowEvent(
     executionTime?: number;
     errorMessage?: string;
     stepsCompleted?: number;
-  }
+  },
 ) {
   return logAuditEvent(eventType, userId, metadata, { sessionId });
 }
@@ -167,7 +168,7 @@ export async function logAdminEvent(
     oldRole?: string;
     newRole?: string;
     permissions?: string[];
-  }
+  },
 ) {
   return logAuditEvent(eventType, adminUserId, {
     targetUserId,
@@ -178,15 +179,13 @@ export async function logAdminEvent(
 /**
  * Get audit logs with optional filtering
  */
-export function getAuditLogs(
-  options?: {
-    userId?: string;
-    eventType?: AuditEventType;
-    startDate?: Date;
-    endDate?: Date;
-    limit?: number;
-  }
-): AuditLogEntry[] {
+export function getAuditLogs(options?: {
+  userId?: string;
+  eventType?: AuditEventType;
+  startDate?: Date;
+  endDate?: Date;
+  limit?: number;
+}): AuditLogEntry[] {
   let filtered = auditLogs;
 
   if (options?.userId) {
@@ -206,7 +205,7 @@ export function getAuditLogs(
   }
 
   const limit = options?.limit || 100;
-  return filtered.slice(-limit).reverse();
+  return filtered.slice(-limit).toReversed();
 }
 
 /**

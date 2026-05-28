@@ -4,6 +4,8 @@ import { AnalyticsOverview } from "@/components/analytics/analytics-overview";
 import { WorkflowMetricsChart } from "@/components/analytics/workflow-metrics-chart";
 import { ApiMetricsChart } from "@/components/analytics/api-metrics-chart";
 import { CostTrendsChart } from "@/components/analytics/cost-trends-chart";
+import { ModelUsageChart } from "@/components/analytics/model-usage-chart";
+import { ExecutionDistributionChart } from "@/components/analytics/execution-distribution-chart";
 import {
   getAnalytics,
   getWorkflowSuccessRates,
@@ -16,43 +18,21 @@ import {
   getUserActivityMetrics,
   getSandboxStats,
 } from "@/lib/analytics/service";
-import {
-  BarChart,
-  Bar,
-  PieChart,
-  Pie,
-  Cell,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
-} from "recharts";
 
 export const metadata: Metadata = {
   title: "Analytics",
   description: "View detailed analytics and metrics for your agent workflows",
 };
 
-const COLORS = [
-  "#3b82f6",
-  "#10b981",
-  "#f59e0b",
-  "#ef4444",
-  "#8b5cf6",
-  "#ec4899",
-];
-
 export default async function AnalyticsPage() {
   // Fetch analytics data
   const now = new Date();
   const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-  
+
   const [
     analyticsData,
-    workflowSuccessRates,
-    executionTimes,
+    _workflowSuccessRates,
+    _executionTimes,
     apiMetrics,
     costTrends,
     executionDistribution,
@@ -110,7 +90,9 @@ export default async function AnalyticsPage() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Analytics Dashboard</h1>
+        <h1 className="text-3xl font-bold tracking-tight">
+          Analytics Dashboard
+        </h1>
         <p className="mt-2 text-muted-foreground">
           Monitor your agent workflows, API performance, and costs
         </p>
@@ -141,31 +123,12 @@ export default async function AnalyticsPage() {
       <div className="grid gap-6 lg:grid-cols-2">
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">Model Usage Distribution</CardTitle>
+            <CardTitle className="text-base">
+              Model Usage Distribution
+            </CardTitle>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
-              <PieChart>
-                <Pie
-                  data={modelUsage}
-                  cx="50%"
-                  cy="50%"
-                  labelLine={false}
-                  label={({ name, percentage }) => `${name} ${percentage}%`}
-                  outerRadius={100}
-                  fill="#8884d8"
-                  dataKey="usage"
-                >
-                  {modelUsage.map((entry, index) => (
-                    <Cell
-                      key={`cell-${index}`}
-                      fill={COLORS[index % COLORS.length]}
-                    />
-                  ))}
-                </Pie>
-                <Tooltip formatter={(value) => `${value} runs`} />
-              </PieChart>
-            </ResponsiveContainer>
+            <ModelUsageChart data={modelUsage} />
           </CardContent>
         </Card>
 
@@ -176,15 +139,7 @@ export default async function AnalyticsPage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={executionDistribution}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="range" />
-                <YAxis />
-                <Tooltip />
-                <Bar dataKey="count" fill="#10b981" />
-              </BarChart>
-            </ResponsiveContainer>
+            <ExecutionDistributionChart data={executionDistribution} />
           </CardContent>
         </Card>
       </div>
@@ -242,7 +197,9 @@ export default async function AnalyticsPage() {
             </div>
             <div>
               <p className="text-sm text-muted-foreground">Utilization Rate</p>
-              <p className="text-2xl font-bold">{sandboxStats.utilizationRate}%</p>
+              <p className="text-2xl font-bold">
+                {sandboxStats.utilizationRate}%
+              </p>
             </div>
           </CardContent>
         </Card>
@@ -256,7 +213,10 @@ export default async function AnalyticsPage() {
         <CardContent>
           <div className="space-y-4">
             {topErrors.map((error) => (
-              <div key={error.error} className="flex items-center justify-between border-b pb-4 last:border-0">
+              <div
+                key={error.error}
+                className="flex items-center justify-between border-b pb-4 last:border-0"
+              >
                 <div className="flex-1">
                   <p className="font-medium">{error.error}</p>
                   <p className="text-sm text-muted-foreground">
